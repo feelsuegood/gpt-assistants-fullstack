@@ -5,19 +5,20 @@ st.set_page_config(
     page_icon="🤖",
 )
 
-with st.sidebar:
-    st.title("Sidebar title")
-    st.text_input("aaa")
+st.markdown(
+    """
+# Hello!
 
-st.title("Title")
+Welcome to my FullstackGPT Portfolio.
 
-tab_one, tab_two, tab_three = st.tabs(["A", "B", "C"])
+Here are the apps I've made:
 
-with tab_one:
-    st.write("a")
+- [ ] [DocumentGPT](/DocumentGPT)
+- [ ] [PrivateGPT](/PrivateGPT)
+- [ ] [QuizGPT](/QuizGPT)
+- [ ] [SiteGPT](/SiteGPT)
+- [ ] [MeetingGPT](/MeetingGPT)
+- [ ] [InvestorGPT](/InvestorGPT)
 
-with tab_two:
-    st.write("b")
-
-with tab_three:
-    st.write("c")
+"""
+)
