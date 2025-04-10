@@ -1,3 +1,4 @@
+from re import template
 import time
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import UnstructuredFileLoader
@@ -13,6 +14,8 @@ st.set_page_config(
     page_title="DocumentGPT",
     page_icon="📄",
 )
+
+llm = ChatOpenAI(temperature=0.1)
 
 
 @st.cache_data(show_spinner="Embedding file...")
@@ -54,6 +57,24 @@ def paint_history():
         send_message(message["message"], message["role"], save=False)
 
 
+def format_docs(docs):
+    return "\n\n".join(document.page_content for document in docs)
+
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+Answer to the question using ONLY the following contest. If you don't know the anwer, just say you don't know. DON'T make anything up.
+
+Context: {context}
+""",
+        ),
+        ("human", "{question}"),
+    ]
+)
+
 st.title("DocumentGPT")
 
 st.markdown(
@@ -78,6 +99,15 @@ if file:
     message = st.chat_input("Ask anything about your files...")
     if message:
         send_message(message, "human")
-        send_message("test", "ai")
+        chain = (
+            {
+                "context": retriever | RunnableLambda(format_docs),
+                "question": RunnablePassthrough(),
+            }
+            | prompt
+            | llm
+        )
+        response = chain.invoke(message)
+        send_message(response.content, "ai")
 else:
     st.session_state["messages"] = []
