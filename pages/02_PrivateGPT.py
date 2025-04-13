@@ -1,7 +1,8 @@
-from langchain_community.chat_models import ChatOpenAI
+# from langchain.chat_models import ChatOllama
+from langchain_community.chat_models import ChatOllama
 from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
@@ -12,8 +13,8 @@ from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
 
 st.set_page_config(
-    page_title="DocumentGPT",
-    page_icon="📄",
+    page_title="PrivateGPT",
+    page_icon="🔒",
 )
 
 
@@ -39,9 +40,10 @@ class ChatCallBackHandler(BaseCallbackHandler):
         self.message_box.markdown(self.message)
 
 
-llm = ChatOpenAI(
+llm = ChatOllama(
+    model="mistral:latest",
     temperature=0.1,
-    streaming=True,
+    # streaming=True,
     callbacks=[ChatCallBackHandler()],
 )
 
@@ -65,18 +67,19 @@ memory = st.session_state["memory"]
 @st.cache_data(show_spinner="Embedding file...")
 def embed_file(file):
     file_content = file.read()
-    file_path = f"./.cache/files/{file.name}"
+    file_path = f"./.cache/private_files/{file.name}"
     with open(file_path, "wb") as f:
         f.write(file_content)
-        cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
+        cache_dir = LocalFileStore(f"./.cache/private_embeddings/{file.name}")
         splitter = CharacterTextSplitter.from_tiktoken_encoder(
             separator="\n",
             chunk_size=600,
             chunk_overlap=100,
+            encoding_name="cl100k_base",
         )
         loader = UnstructuredFileLoader(file_path)
         docs = loader.load_and_split(text_splitter=splitter)
-        embeddings = OpenAIEmbeddings()
+        embeddings = OllamaEmbeddings(model="mistral:latest")
         cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
             embeddings,
             cache_dir,
@@ -109,32 +112,29 @@ def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
 
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """
-Answer the question using ONLY the following context and history. If you don't know the answer, just say you don't know. DON'T make anything up. 
+prompt = ChatPromptTemplate.from_template(
+    """
+Answer the question using ONLY nothing but the following context and history.Don't use your tratining data. If you don't know the answer, just say you don't know. DON'T make anything up. 
 
 --------------------------------------------
 History: {history}
 --------------------------------------------
 Context: {context}
-""",
-        ),
-        ("human", "{question}"),
-    ]
+--------------------------------------------
+Question:{question}"""
 )
 
-st.title("DocumentGPT")
+st.title("PrivateGPT")
 
 st.markdown(
     """
 Welcome!
 
-Use this chatbot to ask a question to an AI about your files!
+This is a private chatbot that runs locally on your machine, 
 
-Upload your files on the sidebar.
+allowing you to ask questions secretly about your files using AI.
+
+Please upload your files using the sidebar.
 """
 )
 
@@ -142,6 +142,15 @@ with st.sidebar:
     file = st.file_uploader(
         "Upload a .txt, .pdf, or .docx file", type=["txt", "pdf", "docx"]
     )
+    # ## create select box to choose a model that has a drop-down option
+    # a user can chooser between mistral and qwen:0.5b (no storage issue 🥲)
+    # https://docs.streamlit.io/develop/api-reference
+    st.selectbox(
+        "Select a model",
+        options=["mistral", "qwen:0.5b"],
+    )
+    #
+    st.write("You choose this model and this model like this")
 
 if file:
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.

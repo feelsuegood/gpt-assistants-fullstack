@@ -14,7 +14,7 @@ Welcome to my FullSuetackGPT Portfolio.
 Here are the apps I've made:
 
 - [x] [DocumentGPT](/DocumentGPT)
-- [ ] [PrivateGPT](/PrivateGPT)
+- [x] [PrivateGPT](/PrivateGPT)
 - [ ] [QuizGPT](/QuizGPT)
 - [ ] [SiteGPT](/SiteGPT)
 - [ ] [MeetingGPT](/MeetingGPT)
