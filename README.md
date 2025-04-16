@@ -19,6 +19,13 @@
    - rm -rf env
 
 5. Model: Orca Mini 3B (orca-mini-3b-gguf2-q4_0.gguf)
+
    - Developer: Microsoft
    - License: CC BY-NC-SA 4.0 (https://spdx.org/licenses/CC-BY-NC-SA-4.0)
    - Usage: This model is used for non-commercial research and experimentation purposes only, with attribution to Microsoft as the original creator.
+
+6. Code Challenges
+   - PrivateGPT: provide multiple model and let a user choose one.
+7. Reference
+
+- https://docs.streamlit.io/develop/api-reference

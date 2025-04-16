@@ -6,4 +6,4 @@ files/
 .cache/
 .streamlit/
 *.gguf
-.cursor/rules/rules.mdc
+.cursor/

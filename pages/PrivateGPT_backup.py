@@ -40,27 +40,14 @@ class ChatCallBackHandler(BaseCallbackHandler):
         self.message_box.markdown(self.message)
 
 
-# init llm
-def init_llm():
-    model_name = st.session_state["model_selector"]
-    # only mistral provides ":latest" tag
-    if model_name == "mistral":
-        model_name = f"{model_name}:latest"
-    return ChatOllama(
-        model=model_name,
-        temperature=0.1,
-        verbose=True,
-        callbacks=[ChatCallBackHandler()],
-    )
+llm = ChatOllama(
+    model="mistral:latest",
+    temperature=0.1,
+    # streaming=True,
+    callbacks=[ChatCallBackHandler()],
+)
 
-
-# sesseion state init
-if "model_selector" not in st.session_state:
-    st.session_state["model_selector"] = "mistral:latest"  # default model
-
-if "llm" not in st.session_state:
-    st.session_state["llm"] = init_llm()
-
+# sesseion init
 if "previous_file_name" not in st.session_state:
     st.session_state["previous_file_name"] = None
 
@@ -69,27 +56,21 @@ if "messages" not in st.session_state:
 
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationSummaryBufferMemory(
-        llm=st.session_state["llm"],
+        llm=llm,
         max_token_limit=150,
         return_messages=True,
     )
-
-if "previous_model" not in st.session_state:
-    st.session_state["previous_model"] = st.session_state["model_selector"]
-
 
 memory = st.session_state["memory"]
 
 
 @st.cache_data(show_spinner="Embedding file...")
-def embed_file(file, model_name):
-    # The cached embedding and the selected model's embedding dimensions are different.
-    cache_key = f"{model_name.replace(':', '_')}_{file.name}"
+def embed_file(file):
     file_content = file.read()
-    file_path = f"./.cache/private_files/{cache_key}"
+    file_path = f"./.cache/private_files/{file.name}"
     with open(file_path, "wb") as f:
         f.write(file_content)
-        cache_dir = LocalFileStore(f"./.cache/private_embeddings/{cache_key}")
+        cache_dir = LocalFileStore(f"./.cache/private_embeddings/{file.name}")
         splitter = CharacterTextSplitter.from_tiktoken_encoder(
             separator="\n",
             chunk_size=600,
@@ -98,9 +79,7 @@ def embed_file(file, model_name):
         )
         loader = UnstructuredFileLoader(file_path)
         docs = loader.load_and_split(text_splitter=splitter)
-        embeddings = OllamaEmbeddings(
-            model=model_name,
-        )
+        embeddings = OllamaEmbeddings(model="mistral:latest")
         cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
             embeddings,
             cache_dir,
@@ -159,29 +138,19 @@ Please upload your files using the sidebar.
 """
 )
 
-
 with st.sidebar:
     file = st.file_uploader(
         "Upload a .txt, .pdf, or .docx file", type=["txt", "pdf", "docx"]
     )
-    # * Code Challenge: select box to choose a model that has a drop-down option
+    # ## create select box to choose a model that has a drop-down option
     # a user can chooser between mistral and qwen:0.5b (no storage issue 🥲)
-    selected_model = st.selectbox(
+    # https://docs.streamlit.io/develop/api-reference
+    st.selectbox(
         "Select a model",
         options=["mistral", "qwen:0.5b"],
-        key="model_selector",
     )
-    st.markdown(
-        f"You selected: 🤖&nbsp;{st.session_state['model_selector']}\n\n"
-        "**⚠️&nbsp;&nbsp;&nbsp;Be careful that you lose your conversation history when you change the model.**"
-    )
-    if st.session_state["previous_model"] != st.session_state["model_selector"]:
-        st.session_state["previous_model"] = st.session_state["model_selector"]
-        st.session_state["llm"] = init_llm()
-        # initialize embedding cache
-        embed_file.clear()
-        # initialize file name to reproduce embedding for changed model
-        st.session_state["previous_file_name"] = None
+    #
+    st.write("You choose this model and this model like this")
 
 if file:
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
@@ -189,13 +158,11 @@ if file:
     if file.name != st.session_state["previous_file_name"]:
         st.session_state["previous_file_name"] = file.name
         st.session_state["memory"] = ConversationSummaryBufferMemory(
-            llm=st.session_state["llm"],
+            llm=llm,
             max_token_limit=150,
             return_messages=True,
         )
-        st.session_state["messages"] = []  # init history
-
-    retriever = embed_file(file, st.session_state["model_selector"])
+    retriever = embed_file(file)
     send_message("I'm ready. Ask away!", "ai", save=False)
     paint_history()
     message = st.chat_input("Ask anything about your files...")
@@ -210,7 +177,7 @@ if file:
                 ),
             }
             | prompt
-            | st.session_state["llm"]
+            | llm
         )
 
         with st.chat_message("ai"):
