@@ -40,27 +40,7 @@ class ChatCallBackHandler(BaseCallbackHandler):
         self.message_box.markdown(self.message)
 
 
-# init llm
-def init_llm():
-    model_name = st.session_state["model_selector"]
-    # add ":latest" tag for mistral
-    if model_name == "mistral":
-        model_name = f"{model_name}:latest"
-    return ChatOllama(
-        model=model_name,
-        temperature=0.1,
-        verbose=True,
-        callbacks=[ChatCallBackHandler()],
-    )
-
-
 # sesseion state init
-if "model_selector" not in st.session_state:
-    st.session_state["model_selector"] = "mistral:latest"  # default model
-
-if "llm" not in st.session_state:
-    st.session_state["llm"] = init_llm()
-
 if "previous_file_name" not in st.session_state:
     st.session_state["previous_file_name"] = None
 
@@ -70,13 +50,25 @@ if "messages" not in st.session_state:
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationSummaryBufferMemory(
         llm=st.session_state["llm"],
-        max_token_limit=150,
+        # If max token is too small (e.g., 250), ai repeats its answers.
+        max_token_limit=1000,
         return_messages=True,
+        memory_key="history",
+        input_key="question",
+        output_key="text",
+        human_prefix="Human",
+        ai_prefix="AI",
     )
 
 if "previous_model" not in st.session_state:
-    st.session_state["previous_model"] = st.session_state["model_selector"]
+    st.session_state["previous_model"] = "mistral"  # default model
 
+if "llm" not in st.session_state:
+    st.session_state["llm"] = ChatOllama(
+        model="mistral:latest",
+        temperature=0.1,
+        callbacks=[ChatCallBackHandler()],
+    )
 
 memory = st.session_state["memory"]
 
@@ -101,6 +93,7 @@ def embed_file(file, model_name):
         embeddings = OllamaEmbeddings(
             model=model_name.replace(":latest", ""),
         )
+        print("embeddings model:", model_name)
         cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
             embeddings,
             cache_dir,
@@ -133,16 +126,64 @@ def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
 
 
+# change llm model
+def change_llm_model(model_name):
+    # add ":latest" tag for mistral
+    if model_name == "mistral":
+        model_name = f"{model_name}:latest"
+    return ChatOllama(
+        model=model_name,
+        temperature=0.1,
+        callbacks=[ChatCallBackHandler()],
+    )
+
+
+#
+def format_history(history):
+    """Format the history to prevent the ai from repeating its answers"""
+    if not history:
+        return ""
+    formatted_history = []
+    for message in history:
+        if hasattr(message, "type"):
+            if message.type == "human":
+                formatted_history.append(f"Human: {message.content}")
+            elif message.type == "ai":
+                formatted_history.append(f"AI: {message.content}")
+    return "\n".join(formatted_history)
+
+
+def reset_memory_and_messages():
+    """Reset the conversation memory and messages"""
+    st.session_state["memory"] = ConversationSummaryBufferMemory(
+        llm=st.session_state["llm"],
+        max_token_limit=1000,
+        return_messages=True,
+        memory_key="history",
+        input_key="question",
+        output_key="text",
+        human_prefix="Human",
+        ai_prefix="AI",
+    )
+    st.session_state["messages"] = []
+
+
 prompt = ChatPromptTemplate.from_template(
     """
-Answer the question using ONLY nothing but the following context and history.Don't use your tratining data. If you don't know the answer, just say you don't know. DON'T make anything up. 
+You are an AI assistant. Use only the following context and questions from the human to answer. Do not use your training data. 
+If the answer is not in the context, say "I don't know". Do not repeat anything from the prompt or previous answers.
 
---------------------------------------------
-History: {history}
---------------------------------------------
-Context: {context}
---------------------------------------------
-Question:{question}"""
+-----------------------------
+Context:
+{context}
+
+-----------------------------
+Previous questions and answers:
+{history}
+
+-----------------------------
+Current question:
+{question}"""
 )
 
 st.title("PrivateGPT")
@@ -172,31 +213,23 @@ with st.sidebar:
         key="model_selector",
     )
     st.markdown(
-        f"You selected: 🤖&nbsp;{st.session_state['model_selector']}\n\n"
-        "**⚠️ Be careful that you lose your conversation changing the model.**"
+        f"You selected: 🤖&nbsp;{selected_model}\n\n"
+        "**⚠️ Be careful that you lose your conversation history when changing the model.**"
     )
-    # update session state about model
     if st.session_state["previous_model"] != st.session_state["model_selector"]:
-        st.session_state["previous_model"] = st.session_state["model_selector"]
-        st.session_state["llm"] = init_llm()
-        # initialize embedding cache
+        # Change llm model and clear embedding cache
         embed_file.clear()
-        # initialize file name to reproduce embedding for changed model
+        st.session_state["llm"] = change_llm_model(selected_model)
         st.session_state["previous_file_name"] = None
-
+        st.session_state["previous_model"] = selected_model
+        reset_memory_and_messages()
 if file:
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
     # New document → new context → new memory
     if file.name != st.session_state["previous_file_name"]:
         st.session_state["previous_file_name"] = file.name
-        st.session_state["memory"] = ConversationSummaryBufferMemory(
-            llm=st.session_state["llm"],
-            max_token_limit=150,
-            return_messages=True,
-        )
-        st.session_state["messages"] = []  # init history
-
-    retriever = embed_file(file, st.session_state["model_selector"])
+        reset_memory_and_messages()
+    retriever = embed_file(file, selected_model)
     send_message("I'm ready. Ask away!", "ai", save=False)
     paint_history()
     message = st.chat_input("Ask anything about your files...")
@@ -207,7 +240,9 @@ if file:
                 "context": retriever | RunnableLambda(format_docs),
                 "question": RunnablePassthrough(),
                 "history": RunnableLambda(
-                    lambda _: memory.load_memory_variables({})["history"]
+                    lambda _: format_history(
+                        memory.load_memory_variables({})["history"]
+                    )
                 ),
             }
             | prompt
@@ -218,8 +253,9 @@ if file:
             # automatically st.markdown when invoke and saved by callbackhandlers
             chain.invoke(message)
 
-        # * Optional: display memory contents
-        # st.markdown("**Memory Contents:**")
-        # st.json(memory.load_memory_variables({}))
+        # print("🧠 MEMORY:", memory.load_memory_variables({})["history"])
+        # print("🤖 MODEL:", st.session_state["model_selector"])
+        # print("🔍 LLM:", st.session_state["llm"].model)
+
 else:
     st.session_state["messages"] = []
