@@ -144,6 +144,7 @@ with st.sidebar:
     )
 
 if file:
+    # * Code Challenge: apply memory by using session state
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
     # New document → new context → new memory
     if file.name != st.session_state["previous_file_name"]:

@@ -25,7 +25,10 @@
    - Usage: This model is used for non-commercial research and experimentation purposes only, with attribution to Microsoft as the original creator.
 
 6. Code Challenges
-   - PrivateGPT: provide multiple model and let a user choose one.
+
+   - [x] DocumentGPT: apply memory by using session state
+   - [x] PrivateGPT: provide multiple model and let a user choose one.
+
 7. Reference
 
 - https://docs.streamlit.io/develop/api-reference

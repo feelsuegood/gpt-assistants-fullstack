@@ -43,7 +43,7 @@ class ChatCallBackHandler(BaseCallbackHandler):
 # init llm
 def init_llm():
     model_name = st.session_state["model_selector"]
-    # only mistral provides ":latest" tag
+    # add ":latest" tag for mistral
     if model_name == "mistral":
         model_name = f"{model_name}:latest"
     return ChatOllama(
@@ -99,7 +99,7 @@ def embed_file(file, model_name):
         loader = UnstructuredFileLoader(file_path)
         docs = loader.load_and_split(text_splitter=splitter)
         embeddings = OllamaEmbeddings(
-            model=model_name,
+            model=model_name.replace(":latest", ""),
         )
         cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
             embeddings,
@@ -173,8 +173,9 @@ with st.sidebar:
     )
     st.markdown(
         f"You selected: 🤖&nbsp;{st.session_state['model_selector']}\n\n"
-        "**⚠️&nbsp;&nbsp;&nbsp;Be careful that you lose your conversation history when you change the model.**"
+        "**⚠️ Be careful that you lose your conversation changing the model.**"
     )
+    # update session state about model
     if st.session_state["previous_model"] != st.session_state["model_selector"]:
         st.session_state["previous_model"] = st.session_state["model_selector"]
         st.session_state["llm"] = init_llm()
