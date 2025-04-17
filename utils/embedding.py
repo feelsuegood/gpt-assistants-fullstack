@@ -20,6 +20,7 @@ def embed_file(file):
     """
     file_content = file.read()
     file_path = f"./.cache/files/{file.name}"
+    print(file_path)
     with open(file_path, "wb") as f:
         f.write(file_content)
         cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")

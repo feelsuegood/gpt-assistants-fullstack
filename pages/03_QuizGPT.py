@@ -62,9 +62,9 @@ with st.sidebar:
         if topic:
             retriever = WikipediaRetriever(
                 lang="en",
-                load_max_docs=7,
+                doc_content_chars_max=1000,
                 top_k_results=3,
-            )
+            )  # type: ignore
             with st.status("Searching Wikipedia..."):
                 docs = retriever.get_relevant_documents(topic)
                 st.write(docs)
