@@ -7,9 +7,8 @@
 3. setup
 
    - git init . -> .gitignore
-   - **python3.11** -m venv env (create virtual environment)
+   - python3.11 -m venv env (create virtual environment)
    - source env/bin/activate (get into Virtual environment) ↔︎ deactivate
-   - pip install --upgrade pip setuptools wheel (Upgrade the package installation tool)
    - pip install -r requirements.txt
    - .env → put into .gitignore
 
@@ -31,4 +30,12 @@
 
 7. Reference
 
-- https://docs.streamlit.io/develop/api-reference
+- [streamlit](https://docs.streamlit.io/develop/api-reference)
+
+8. To do list
+
+- []R eplace with utils.embedding function in PrivateGPT
+
+# Acknowledgement
+
+- [Nomad Coders fullstack GPT](https://nomadcoders.co/fullstack-gpt)

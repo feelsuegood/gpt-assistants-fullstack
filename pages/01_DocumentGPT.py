@@ -1,15 +1,10 @@
-from langchain_community.chat_models import ChatOpenAI
-from langchain_community.document_loaders import UnstructuredFileLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain.embeddings import CacheBackedEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain.storage import LocalFileStore
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
+from utils.embedding import embed_file
 
 st.set_page_config(
     page_title="DocumentGPT",
@@ -60,33 +55,6 @@ if "memory" not in st.session_state:
     )
 
 memory = st.session_state["memory"]
-
-
-@st.cache_data(show_spinner="Embedding file...")
-def embed_file(file):
-    file_content = file.read()
-    file_path = f"./.cache/files/{file.name}"
-    with open(file_path, "wb") as f:
-        f.write(file_content)
-        cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
-        splitter = CharacterTextSplitter.from_tiktoken_encoder(
-            separator="\n",
-            chunk_size=600,
-            chunk_overlap=100,
-        )
-        loader = UnstructuredFileLoader(file_path)
-        docs = loader.load_and_split(text_splitter=splitter)
-        embeddings = OpenAIEmbeddings()
-        cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
-            embeddings,
-            cache_dir,
-        )
-        vectorstore = FAISS.from_documents(
-            docs,
-            cached_embeddings,
-        )
-        retriever = vectorstore.as_retriever()
-        return retriever
 
 
 def save_message(message, role):

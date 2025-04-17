@@ -1,16 +1,17 @@
-# from langchain.chat_models import ChatOllama
-from langchain_community.chat_models import ChatOllama
-from langchain_community.document_loaders import UnstructuredFileLoader
+from langchain.chat_models import ChatOllama
+from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain.embeddings import OllamaEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain_community.vectorstores import FAISS
+from langchain.vectorstores import FAISS
 from langchain.storage import LocalFileStore
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
+import requests
+
 
 st.set_page_config(
     page_title="PrivateGPT",
@@ -47,6 +48,13 @@ if "previous_file_name" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
+if "llm" not in st.session_state:
+    st.session_state["llm"] = ChatOllama(
+        model="mistral:latest",
+        temperature=0.1,
+        callbacks=[ChatCallBackHandler()],
+    )
+
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationSummaryBufferMemory(
         llm=st.session_state["llm"],
@@ -63,18 +71,13 @@ if "memory" not in st.session_state:
 if "previous_model" not in st.session_state:
     st.session_state["previous_model"] = "mistral"  # default model
 
-if "llm" not in st.session_state:
-    st.session_state["llm"] = ChatOllama(
-        model="mistral:latest",
-        temperature=0.1,
-        callbacks=[ChatCallBackHandler()],
-    )
 
 memory = st.session_state["memory"]
 
 
+# * replace with utils.embedding function
 @st.cache_data(show_spinner="Embedding file...")
-def embed_file(file, model_name):
+def private_embed_file(file, model_name):
     # The cached embedding and the selected model's embedding dimensions are different.
     cache_key = f"{model_name.replace(':', '_')}_{file.name}"
     file_content = file.read()
@@ -93,7 +96,7 @@ def embed_file(file, model_name):
         embeddings = OllamaEmbeddings(
             model=model_name.replace(":latest", ""),
         )
-        print("embeddings model:", model_name)
+        # print("embeddings model:", model_name)
         cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
             embeddings,
             cache_dir,
@@ -218,18 +221,25 @@ with st.sidebar:
     )
     if st.session_state["previous_model"] != st.session_state["model_selector"]:
         # Change llm model and clear embedding cache
-        embed_file.clear()
+        private_embed_file.clear()
         st.session_state["llm"] = change_llm_model(selected_model)
         st.session_state["previous_file_name"] = None
         st.session_state["previous_model"] = selected_model
         reset_memory_and_messages()
 if file:
+    # Check Ollama server connection
+    try:
+        requests.get("http://localhost:11434/api/tags")
+    except requests.exceptions.ConnectionError:
+        st.error(
+            "Unable to connect to Ollama server. Start the server with the 'ollama serve' command."
+        )
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
     # New document → new context → new memory
     if file.name != st.session_state["previous_file_name"]:
         st.session_state["previous_file_name"] = file.name
         reset_memory_and_messages()
-    retriever = embed_file(file, selected_model)
+    retriever = private_embed_file(file, selected_model)
     send_message("I'm ready. Ask away!", "ai", save=False)
     paint_history()
     message = st.chat_input("Ask anything about your files...")
@@ -248,10 +258,11 @@ if file:
             | prompt
             | st.session_state["llm"]
         )
-
+        # with st.status("Generating an answer..."):
         with st.chat_message("ai"):
             # automatically st.markdown when invoke and saved by callbackhandlers
-            chain.invoke(message)
+            with st.spinner("Generating an answer..."):
+                chain.invoke(message)
 
         # print("🧠 MEMORY:", memory.load_memory_variables({})["history"])
         # print("🤖 MODEL:", st.session_state["model_selector"])
