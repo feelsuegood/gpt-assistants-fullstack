@@ -1,5 +1,4 @@
 import json
-from typing import List
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.schema.output import Generation
 from langchain.text_splitter import CharacterTextSplitter
@@ -10,6 +9,11 @@ import streamlit as st
 from langchain.retrievers import WikipediaRetriever
 from langchain.schema import BaseOutputParser
 from sympy import true
+
+# [ ] Code challenge #1: using function calling instead of prompts
+# [ ] Code challenge #2: Create a switch (enable/disable) that shows the correct answer or not,
+# so that a user can choose to keep trying or not
+# If enabled, a user can see the correct answer right away
 
 
 class JsonOutputParser(BaseOutputParser):
