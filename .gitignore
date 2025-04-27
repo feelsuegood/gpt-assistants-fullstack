@@ -7,3 +7,7 @@ files/
 .streamlit/
 *.gguf
 .cursor/
+practice/cache.db
+practice/model.json
+practice/prompt.json
+practice/prompt.yaml
