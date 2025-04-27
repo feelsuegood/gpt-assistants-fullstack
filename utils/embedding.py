@@ -1,6 +1,5 @@
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.storage import LocalFileStore
@@ -8,7 +7,7 @@ import streamlit as st
 
 
 @st.cache_data(show_spinner="Embedding file...")
-def embed_file(file):
+def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_name):
     """
     Embed a file and return a retriever for the embedded content.
 
@@ -18,12 +17,17 @@ def embed_file(file):
     Returns:
         A retriever object that can be used to search the embedded content
     """
-    file_content = file.read()
-    file_path = f"./.cache/files/{file.name}"
-    print(file_path)
+    file_content = _file.read()
+    # file_path = f"./.cache/# [x] variables -> files/{file.name}"
+    file_path = f"./.cache/{files_folder}_{model_name}/{_file.name}"
+    # [x]print(file_path)
     with open(file_path, "wb") as f:
         f.write(file_content)
-        cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
+        # cache_dir = LocalFileStore(f"./.cache/ # [x] variables -> embeddings/{file.name}")
+        cache_dir = LocalFileStore(
+            f"./.cache/{embeddings_folder}_{model_name}/{_file.name}"
+        )
+        # [x] print(cache_dir)
         splitter = CharacterTextSplitter.from_tiktoken_encoder(
             separator="\n",
             chunk_size=600,
@@ -31,7 +35,8 @@ def embed_file(file):
         )
         loader = UnstructuredFileLoader(file_path)
         docs = loader.load_and_split(text_splitter=splitter)
-        embeddings = OpenAIEmbeddings()
+        # [x] variable -> OpenAIEmbeddings()
+        embeddings = _embeddings_model
         cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
             embeddings,
             cache_dir,
@@ -41,4 +46,5 @@ def embed_file(file):
             cached_embeddings,
         )
         retriever = vectorstore.as_retriever()
+        # [x] print(retriever)
         return retriever

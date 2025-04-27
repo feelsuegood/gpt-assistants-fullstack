@@ -1,4 +1,5 @@
 from langchain.chat_models import ChatOpenAI
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
@@ -122,7 +123,7 @@ if file:
             max_token_limit=150,
             return_messages=True,
         )
-    retriever = embed_file(file)
+    retriever = embed_file(file, "files", "embeddings", OpenAIEmbeddings(), "openai")
     send_message("I'm ready. Ask away!", "ai", save=False)
     paint_history()
     message = st.chat_input("Ask anything about your files...")

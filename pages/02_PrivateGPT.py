@@ -11,6 +11,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
 import requests
+from utils.embedding import embed_file
 
 
 st.set_page_config(
@@ -48,9 +49,12 @@ if "previous_file_name" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
+if "previous_model" not in st.session_state:
+    st.session_state["previous_model"] = "mistral"
+
 if "llm" not in st.session_state:
     st.session_state["llm"] = ChatOllama(
-        model="mistral:latest",
+        model="mistrral:latest",
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
     )
@@ -67,46 +71,32 @@ if "memory" not in st.session_state:
         human_prefix="Human",
         ai_prefix="AI",
     )
-
-if "previous_model" not in st.session_state:
-    st.session_state["previous_model"] = "mistral"  # default model
+if "uploaded_file" not in st.session_state:
+    st.session_state["uploaded_file"] = None
 
 
 memory = st.session_state["memory"]
+selected_model = st.session_state["previous_model"]
 
 
-# * replace with utils.embedding function
-@st.cache_data(show_spinner="Embedding file...")
-def private_embed_file(file, model_name):
-    # The cached embedding and the selected model's embedding dimensions are different.
-    cache_key = f"{model_name.replace(':', '_')}_{file.name}"
-    file_content = file.read()
-    file_path = f"./.cache/private_files/{cache_key}"
-    with open(file_path, "wb") as f:
-        f.write(file_content)
-        cache_dir = LocalFileStore(f"./.cache/private_embeddings/{cache_key}")
-        splitter = CharacterTextSplitter.from_tiktoken_encoder(
-            separator="\n",
-            chunk_size=600,
-            chunk_overlap=100,
-            encoding_name="cl100k_base",
-        )
-        loader = UnstructuredFileLoader(file_path)
-        docs = loader.load_and_split(text_splitter=splitter)
-        embeddings = OllamaEmbeddings(
-            model=model_name.replace(":latest", ""),
-        )
-        # print("embeddings model:", model_name)
-        cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
-            embeddings,
-            cache_dir,
-        )
-        vectorstore = FAISS.from_documents(
-            docs,
-            cached_embeddings,
-        )
-        retriever = vectorstore.as_retriever()
-        return retriever
+# change llm model
+def change_llm_model(model_name):
+    # add ":latest" tag for mistral
+    if model_name == "mistral":
+        model_name = f"{model_name}:latest"
+    return ChatOllama(
+        model=model_name,
+        temperature=0.1,
+        callbacks=[ChatCallBackHandler()],
+    )
+
+
+# change embeddings model
+def change_embeddings_model(model_name):
+    # add ":latest" tag for mistral
+    return OllamaEmbeddings(
+        model=model_name,
+    )
 
 
 def save_message(message, role):
@@ -127,18 +117,6 @@ def paint_history():
 
 def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
-
-
-# change llm model
-def change_llm_model(model_name):
-    # add ":latest" tag for mistral
-    if model_name == "mistral":
-        model_name = f"{model_name}:latest"
-    return ChatOllama(
-        model=model_name,
-        temperature=0.1,
-        callbacks=[ChatCallBackHandler()],
-    )
 
 
 #
@@ -221,7 +199,7 @@ with st.sidebar:
     )
     if st.session_state["previous_model"] != st.session_state["model_selector"]:
         # Change llm model and clear embedding cache
-        private_embed_file.clear()
+        embed_file.clear()
         st.session_state["llm"] = change_llm_model(selected_model)
         st.session_state["previous_file_name"] = None
         st.session_state["previous_model"] = selected_model
@@ -239,7 +217,13 @@ if file:
     if file.name != st.session_state["previous_file_name"]:
         st.session_state["previous_file_name"] = file.name
         reset_memory_and_messages()
-    retriever = private_embed_file(file, selected_model)
+    retriever = embed_file(
+        file,
+        "private_files",
+        "private_embeddings",
+        OllamaEmbeddings(model=st.session_state["previous_model"]),
+        selected_model,
+    )
     send_message("I'm ready. Ask away!", "ai", save=False)
     paint_history()
     message = st.chat_input("Ask anything about your files...")
