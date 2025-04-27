@@ -9,6 +9,7 @@ from langchain.callbacks import StreamingStdOutCallbackHandler
 import streamlit as st
 from langchain.retrievers import WikipediaRetriever
 from langchain.schema import BaseOutputParser
+from sympy import true
 
 
 class JsonOutputParser(BaseOutputParser):
@@ -189,6 +190,23 @@ def split_file(file):
         return docs
 
 
+@st.cache_data(show_spinner="Making quiz...")
+# * add another parameter if your parameter isn't hashable
+def run_quiz_chain(_docs, topic):
+    chain = {"context": questions_chain} | formatting_chain | output_parser
+    return chain.invoke(_docs)
+
+
+@st.cache_data(show_spinner="Searching Wikipedia...")
+def wiki_search(term):
+    retriever = WikipediaRetriever(
+        lang="en",
+        doc_content_chars_max=1000,
+        top_k_results=3,
+    )  # type: ignore
+    return retriever.get_relevant_documents(term)
+
+
 with st.sidebar:
     docs = None
     choice = st.selectbox(
@@ -213,13 +231,7 @@ with st.sidebar:
     else:
         topic = st.text_input("Search Wikipedia...")
         if topic:
-            retriever = WikipediaRetriever(
-                lang="en",
-                doc_content_chars_max=1000,
-                top_k_results=3,
-            )  # type: ignore
-            with st.status("Searching Wikipedia..."):
-                docs = retriever.get_relevant_documents(topic)
+            docs = wiki_search(topic)
 
 if not docs:
     st.markdown(
@@ -232,17 +244,31 @@ if not docs:
 """
     )
 else:
-    start = st.button("Generate Quiz")
-
-    if start:
-        # questions_response = questions_chain.invoke(docs)
-        # st.write(questions_response.content)
-        # formatting_response = formatting_chain.invoke(
-        #     {"context": questions_response.content}
-        # )
-        # # ! don't forget '.content'
-        # st.write(formatting_response.content)
-
-        chain = {"context": questions_chain} | formatting_chain | output_parser
-        response = chain.invoke(docs)
-        st.write(response)
+    # questions_response = questions_chain.invoke(docs)
+    # st.write(questions_response.content)
+    # formatting_response = formatting_chain.invoke(
+    #     {"context": questions_response.content}
+    # )
+    # # ! don't forget '.content'
+    # st.write(formatting_response.content)
+    quiz_topic = topic if topic else (file.name if file is not None else "")
+    response = run_quiz_chain(docs, quiz_topic)
+    # st.write(response)
+    with st.form("questions_form"):
+        # think relations based on questions
+        for question in response["questions"]:
+            st.write(question["question"])
+            value = st.radio(
+                "Select an option",
+                [answer["answer"] for answer in question["answers"]],
+                index=None,
+            )
+            # st.json({"value": value, "correct": true} in question["answers"])
+            if {"answer": value, "correct": true} in question["answers"]:
+                st.success("Correct 🙆🏻‍♀️")
+            elif value is not None:
+                for answer in question["answers"]:
+                    if answer["correct"] == true:
+                        correct_answer = answer["answer"]
+                st.error(f"Incorrect 🙅🏻‍♀️. \n\nThe answer is '{correct_answer}'")
+        button = st.form_submit_button()
