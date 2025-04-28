@@ -11,3 +11,5 @@ practice/cache.db
 practice/model.json
 practice/prompt.json
 practice/prompt.yaml
+__pycache__/
+*.pyc

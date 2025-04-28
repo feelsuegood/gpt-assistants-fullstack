@@ -13,7 +13,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import StrOutputParser
 from langchain.vectorstores.faiss import FAISS
 from langchain.storage import LocalFileStore
-from langchain.document_loaders import UnstructuredFileLoader
 from langchain.embeddings import OpenAIEmbeddings, CacheBackedEmbeddings
 
 
