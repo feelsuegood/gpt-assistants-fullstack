@@ -129,7 +129,11 @@ This project enables document Q&A, private file chat, quiz generation, and more,
     - If it does, return the saved response.
     - If not, proceed with a map-reduce or rerank chain.
     - (Hint: You can implement this using function calling.)
-    -
+- [ ] MeetingGPT: Finalise the Q&A tab by building a chatbot with document retrieval and answering capabilities. Use a chain to accurately respond to users' questions based on the meeting transcript.
+  - [ ] Stuff Chain
+  - [x] Map-Reduce Chain (chosen)
+  - [ ] Map-Rerank Chain
+  - [ ] Refine Chain
 
 ---
 

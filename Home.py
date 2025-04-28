@@ -1,9 +1,12 @@
 import streamlit as st
 
+
 st.set_page_config(
     page_title="FullSuetackGPT Home",
     page_icon="🤖",
 )
+
+st.balloons()
 
 st.markdown(
     """
