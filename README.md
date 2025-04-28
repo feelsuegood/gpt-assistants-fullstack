@@ -117,10 +117,19 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 
 ## 📝 To Do
 
-- [x] Replace embedding logic in PrivateGPT with `utils.embedding` function
-- [ ] Add more GPT-powered tools (SiteGPT, MeetingGPT, InvestorGPT, etc.)
-- [ ] Use function calling instead of prompts for QuizGPT
-- [ ] Create a switch (enable/disable) that shows the correct answer or not, for QuizGPT
+- [x] DocumentGPT: Refactor to use the utils.embedding function for embeddings.
+- [x] PrivateGPT: Refactor to use the utils.embedding function for embeddings.
+- [ ] QuizGPT: Implement function calling instead of using prompt-based generation.
+- [ ] QuizGPT: Add a toggle switch to show or hide the correct answers.
+- [x] SiteGPT: playwright install in the virtual environment
+- [ ] SiteGPT: Build a chatbot with message streaming, user and assistant roles, chat history, and memory integration.
+- [ ] SiteGPT: Cache user questions and similar questions.
+  - Idea: Save past questions and responses.
+  - When a new question is asked, check if a similar question exists to another llm.
+    - If it does, return the saved response.
+    - If not, proceed with a map-reduce or rerank chain.
+    - (Hint: You can implement this using function calling.)
+    -
 
 ---
 
@@ -128,5 +137,3 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 
 This project is for non-commercial research and educational purposes only.  
 See individual model licenses for details.
-
-SiteGPT: playwright install

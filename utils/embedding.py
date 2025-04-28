@@ -1,7 +1,7 @@
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain.vectorstores import FAISS
+from langchain.vectorstores.faiss import FAISS
 from langchain.storage import LocalFileStore
 import streamlit as st
 
