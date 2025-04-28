@@ -1,4 +1,4 @@
-# Fullstack-GPT 🦙🤖
+# FullSuetack-GPT 🦙🤖
 
 A multi-purpose, local-first AI assistant platform built with Streamlit and LangChain.  
 This project enables document Q&A, private file chat, quiz generation, and more, all running on your machine with support for both OpenAI and local models.
@@ -19,8 +19,14 @@ This project enables document Q&A, private file chat, quiz generation, and more,
   Generate multiple-choice quizzes from uploaded files or Wikipedia articles.  
   Test your knowledge interactively and get instant feedback.
 
+- **SiteGPT** 📝:  
+  Ask anything about a website — SiteGPT loads the site's sitemap, extracts the content, and answers your questions accurately.
+
+- **MeetingGPT** 📝:  
+  Upload a video and instantly get a transcript, a summary, and a chatbot to answer your questions.
+
 - **Extensible** 🧩:  
-  Easily add new GPT-powered tools (e.g., SiteGPT, MeetingGPT, InvestorGPT) by creating new Streamlit pages.
+  Easily add new GPT-powered tools (e.g., InvestorGPT) by creating new Streamlit pages.
 
 ---
 
@@ -130,10 +136,7 @@ This project enables document Q&A, private file chat, quiz generation, and more,
     - If not, proceed with a map-reduce or rerank chain.
     - (Hint: You can implement this using function calling.)
 - [ ] MeetingGPT: Finalise the Q&A tab by building a chatbot with document retrieval and answering capabilities. Use a chain to accurately respond to users' questions based on the meeting transcript.
-  - [ ] Stuff Chain
-  - [x] Map-Reduce Chain (chosen)
-  - [ ] Map-Rerank Chain
-  - [ ] Refine Chain
+  - Stuff Chain | ✅ Map-Reduce Chain | Map-Rerank Chain | Refine Chain
 
 ---
 
