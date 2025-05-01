@@ -25,7 +25,8 @@ splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
 )
 
 # kill switch
-has_transcript = os.path.exists("./.cache/astrology.txt")
+# Have to change it every time: video-file-name.txt
+has_transcript = os.path.exists("./.cache/get-claude.txt")
 
 
 @st.cache_data(show_spinner="Embedding file...")
