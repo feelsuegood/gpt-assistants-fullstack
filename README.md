@@ -144,3 +144,7 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 
 This project is for non-commercial research and educational purposes only.  
 See individual model licenses for details.
+
+## More
+
+- Use [langsmith](https://smith.langchain.com/) to trace langchain output
