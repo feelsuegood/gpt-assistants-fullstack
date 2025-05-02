@@ -1,6 +1,6 @@
 # GPT Assistansts 🤖💁‍♀️
 
-A multi-purpose, local-first AI assistant platform built with Streamlit and LangChain.  
+A multi-purpose AI assistants platform built with LangChain and Streamlit.  
 This project enables document Q&A, private file chat, quiz generation, and more, all running on your machine with support for both OpenAI and local models.
 
 ---
