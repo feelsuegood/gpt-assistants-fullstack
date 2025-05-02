@@ -1,4 +1,4 @@
-# FullSueStack-GPT 🦙🤖
+# GPT Assistansts 🤖💁‍♀️
 
 A multi-purpose, local-first AI assistant platform built with Streamlit and LangChain.  
 This project enables document Q&A, private file chat, quiz generation, and more, all running on your machine with support for both OpenAI and local models.
@@ -50,8 +50,8 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/feelsuegood/fullsuestack-gpt.git
-   cd fullsuestack-gpt
+   git clone https://github.com/feelsuegood/gpt-assistants.git
+   cd gpt-assistants
    ```
 
 2. **Set up a virtual environment**
