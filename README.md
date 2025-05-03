@@ -25,6 +25,8 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 - **MeetingGPT** 📝:  
   Upload a video and instantly get a transcript, a summary, and a chatbot to answer your questions.
 
+- **InvestorGPT** 📝:
+  [Agent Types](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/)
 - **Extensible** 🧩:  
   Easily add new GPT-powered tools (e.g., InvestorGPT) by creating new Streamlit pages.
 
