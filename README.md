@@ -150,3 +150,4 @@ See individual model licenses for details.
 ## More
 
 - Use [langsmith](https://smith.langchain.com/) to trace langchain output
+- https://docs.pydantic.dev/latest/ to use OPENAI function calling
