@@ -139,6 +139,11 @@ This project enables document Q&A, private file chat, quiz generation, and more,
     - (Hint: You can implement this using function calling.)
 - [ ] MeetingGPT: Finalise the Q&A tab by building a chatbot with document retrieval and answering capabilities. Use a chain to accurately respond to users' questions based on the meeting transcript.
   - Stuff Chain | ✅ Map-Reduce Chain | Map-Rerank Chain | Refine Chain
+- - Upgrade langchain to langain_community
+- [ ] Improve stock symbol search reliability by replacing or supplementing DuckDuckGo, which can sometimes be unreliable.
+- [ ] Current window link in Home.py is not possible (streamlit doesn't support)
+- [ ] Need to add input function for OpenAI API Key and Alpha Vantage API Key from users for deployed app
+
 
 ---
 
@@ -152,6 +157,3 @@ See individual model licenses for details.
 - Use [langsmith](https://smith.langchain.com/) to trace langchain output
 - https://docs.pydantic.dev/latest/ to use OPENAI function calling
 
-## 🛠️ imporevement
-- Upgrade langchain to langain_community
-- Improve stock symbol search reliability by replacing or supplementing DuckDuckGo, which can sometimes be unreliable.

@@ -16,12 +16,17 @@ Welcome to my GPT Assistants Fullstack Portfolio Site.
 
 Here are the apps I've made:
 
-- [x] [DocumentGPT](/DocumentGPT)
-- [x] [PrivateGPT](/PrivateGPT)
-- [x] [QuizGPT](/QuizGPT)
-- [x] [SiteGPT](/SiteGPT)
-- [x] [MeetingGPT](/MeetingGPT)
-- [x] [InvestorGPT](/InvestorGPT)
-
 """
 )
+
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.link_button("📄 DocumentGPT", "DocumentGPT", use_container_width=True)
+    st.link_button("🔒 PrivateGPT", "PrivateGPT", use_container_width=True)
+    st.link_button("💡 QuizGPT", "QuizGPT", use_container_width=True)
+with col2:
+    st.link_button("📌 SiteGPT", "SiteGPT", use_container_width=True)
+    st.link_button("📆 MeetingGPT", "MeetingGPT", use_container_width=True)
+    st.link_button("📈 InvestorGPT", "InvestorGPT", use_container_width=True)
