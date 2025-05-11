@@ -39,7 +39,6 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 ├── pages/           # Streamlit app pages (DocumentGPT, PrivateGPT, QuizGPT, etc.)
 ├── utils/           # Utility modules (e.g., embedding functions)
 ├── practice/        # Example notebooks and experiments
-├── .cache/          # Cached files, embeddings, and quiz data
 ├── requirements.txt # Python dependencies
 ├── Home.py          # Main Streamlit entry point
 └── README.md        # This file
@@ -120,6 +119,7 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 
 - [Streamlit Documentation](https://docs.streamlit.io/develop/api-reference)
 - [Nomad Coders fullstack GPT](https://nomadcoders.co/fullstack-gpt)
+- [Langchain Tools/Toolkits](https://python.langchain.com/docs/integrations/tools/?_gl=1*ldavbi*_ga*ODYyMjkyMzAuMTc0Njk4NjYxNw..*_ga_47WX3HKKY2*czE3NDY5ODY2ODMkbzEkZzEkdDE3NDY5ODY2OTMkajAkbDAkaDA)
 
 ---
 
@@ -151,3 +151,7 @@ See individual model licenses for details.
 
 - Use [langsmith](https://smith.langchain.com/) to trace langchain output
 - https://docs.pydantic.dev/latest/ to use OPENAI function calling
+
+## 🛠️ imporevement
+- Upgrade langchain to langain_community
+- Improve stock symbol search reliability by replacing or supplementing DuckDuckGo, which can sometimes be unreliable.
