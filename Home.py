@@ -2,7 +2,7 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="FullSuetackGPT Home",
+    page_title="GPT Assistants",
     page_icon="🤖",
 )
 
@@ -12,7 +12,7 @@ st.markdown(
     """
 # Hello!
 
-Welcome to my FullSuetackGPT Portfolio.
+Welcome to my GPT Assistants Fullstack Portfolio Site.
 
 Here are the apps I've made:
 
