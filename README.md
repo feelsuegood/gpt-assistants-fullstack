@@ -143,6 +143,7 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 - [ ] Improve stock symbol search reliability by replacing or supplementing DuckDuckGo, which can sometimes be unreliable.
 - [ ] Current window link in Home.py is not possible (streamlit doesn't support)
 - [ ] Need to add input function for OpenAI API Key and Alpha Vantage API Key from users for deployed app
+- [ ] ChefGPT (Custom GPT): create user authentication function for a user to mark their favourite recipes and see their favourite recipes list 
 
 
 ---
