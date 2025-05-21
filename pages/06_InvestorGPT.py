@@ -4,7 +4,7 @@ import time
 from fake_useragent import UserAgent
 import httpx
 from typing import Type
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field

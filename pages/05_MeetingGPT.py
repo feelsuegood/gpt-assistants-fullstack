@@ -6,7 +6,7 @@ import openai
 import glob
 import streamlit as st
 import os
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -82,9 +82,9 @@ def transcribe_chunks(chunks_folder, transcript_path):
     files.sort()
     for file in files:
         with open(file, "rb") as audio_file, open(transcript_path, "a") as text_file:
-            transcript = openai.Audio.transcribe(
-                "whisper-1",
-                audio_file,
+            transcript = openai.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
                 language="en",
             )
             text_file.write(transcript["text"])  # type: ignore
