@@ -1,5 +1,4 @@
 import subprocess
-from altair import Text
 from pydub import AudioSegment
 import math
 import openai
@@ -8,12 +7,13 @@ import streamlit as st
 import os
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
-from langchain.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import StrOutputParser
-from langchain.vectorstores.faiss import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
-from langchain.embeddings import OpenAIEmbeddings, CacheBackedEmbeddings
+from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings
 
 
 llm = ChatOpenAI(
@@ -29,7 +29,7 @@ splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
 has_transcript = os.path.exists("./.cache/get-claude.txt")
 
 
-@st.cache_data(show_spinner="Embedding file...")
+@st.cache_resource(show_spinner="Embedding file...")
 def embed_file(file_path):
     file_name = os.path.basename(file_path)
     cache_dir = LocalFileStore(
@@ -87,7 +87,7 @@ def transcribe_chunks(chunks_folder, transcript_path):
                 file=audio_file,
                 language="en",
             )
-            text_file.write(transcript["text"])  # type: ignore
+            text_file.write(transcript.text)
 
 
 st.set_page_config(page_title="MeetingGPT", page_icon="📆")

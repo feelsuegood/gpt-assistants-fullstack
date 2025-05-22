@@ -9,8 +9,8 @@ from langchain.schema import SystemMessage
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 from langchain.agents import initialize_agent, AgentType
-from langchain.utilities import DuckDuckGoSearchAPIWrapper
-from langchain.tools import DuckDuckGoSearchResults
+from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
+from langchain_community.tools import DuckDuckGoSearchResults
 from duckduckgo_search import DDGS
 import requests
 

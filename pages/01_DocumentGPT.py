@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
@@ -51,8 +51,11 @@ if "messages" not in st.session_state:
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationSummaryBufferMemory(
         llm=llm,
-        max_token_limit=150,
+        max_token_limit=1000,
+        memory_key="history",
         return_messages=True,
+        input_key="question",
+        output_key="text",
     )
 
 memory = st.session_state["memory"]
@@ -83,12 +86,15 @@ prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             """
-Answer the question using ONLY the following context and history. If you don't know the answer, just say you don't know. DON'T make anything up. 
+You are a helpful AI assistant that answers questions about documents. Follow these rules:
+1. Use ONLY the provided context and conversation history to answer
+2. If you don't know the answer, say "I don't know"
+3. Do not repeat previous answers unless specifically asked
+4. Keep your answers focused and concise
+5. If the question has been asked before, refer to your previous answer and add any new relevant information
 
---------------------------------------------
-History: {history}
---------------------------------------------
 Context: {context}
+Previous Conversation: {history}
 """,
         ),
         ("human", "{question}"),
@@ -120,8 +126,11 @@ if file:
         st.session_state["previous_file_name"] = file.name
         st.session_state["memory"] = ConversationSummaryBufferMemory(
             llm=llm,
-            max_token_limit=150,
+            max_token_limit=1000,
+            memory_key="history",
             return_messages=True,
+            input_key="question",
+            output_key="text",
         )
     retriever = embed_file(file, "files", "embeddings", OpenAIEmbeddings(), "openai")
     send_message("I'm ready. Ask away!", "ai", save=False)

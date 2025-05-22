@@ -1,21 +1,33 @@
 import httpx
 import re
 from fake_useragent import UserAgent
-from langchain.document_loaders import SitemapLoader
+from langchain_community.document_loaders import SitemapLoader
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores.faiss import FAISS
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 import streamlit as st
+
+# * https://openai.com/sitemap.xml
+# * https://www.google.com/forms/sitemaps.xml
 
 # Configure logging
 # logging.basicConfig(level=logging.DEBUG)
 
 # Initialize a UserAgent object
 ua = UserAgent()
-client = httpx.Client(headers={"User-Agent": ua.random})
+client = httpx.Client(
+    headers={
+        "User-Agent": ua.random,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    }
+)
 
 llm = ChatOpenAI(temperature=0.1)
 
@@ -84,8 +96,10 @@ def get_answers(inputs):
                         "question": question,
                     }
                 ).content,
-                "source": doc.metadata["source"],
-                "date": doc.metadata["lastmod"],
+                "source": doc.metadata.get("source", "Unknown source"),
+                "date": doc.metadata.get(
+                    "lastmod", "No date available"
+                ),  # default value
             }
             for doc in docs
         ],
@@ -137,8 +151,6 @@ def choose_answer(inputs):
     return chosen_answer
 
 
-# https://openai.com/sitemap.xml
-# https://www.google.com/forms/sitemaps.xml
 def parse_page(soup):
     header = soup.find("header")
     footer = soup.find("footer")
@@ -171,12 +183,14 @@ def parse_page(soup):
 
 
 # if same url, the function doesn't run again
-@st.cache_data(show_spinner="Loading a website...")
+@st.cache_resource(show_spinner="Loading a website...")
 def load_website(url):
     splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=1000,
         chunk_overlap=200,
     )
+    # Session setup to disable SSL verification
+    verify_ssl = False
     loader = SitemapLoader(
         url,
         ### * filtering URL ###
@@ -187,10 +201,18 @@ def load_website(url):
         # include
         # filter_urls=[r"^(.*\/gpt-4\/).*"],
         # Set a realistic user agent
-        header_template={"User-Agent": ua.random},
+        header_template={
+            "User-Agent": ua.random,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+        },
         parsing_function=parse_page,
+        requests_per_second=3,
+        verify_ssl=verify_ssl,
     )
-    loader.requests_per_second = 3
     docs = loader.load_and_split(text_splitter=splitter)
     # option: cache embeddings - should create a folder for each URL firstly
     vector_store = FAISS.from_documents(docs, OpenAIEmbeddings())
@@ -209,6 +231,10 @@ st.markdown(
      Ask questions about the content of a website.
              
      Start by writing the URL of the website on the sidebar.
+
+     ### Example
+    - Site: https://www.google.com/forms/sitemaps.xml
+    - Question: How can I create a form?
  """
 )
 
@@ -233,6 +259,14 @@ if url:
 
         query = st.text_input("Ask a question to the website.")
         if query:
+            # * Debug: Check search results
+            # docs = retriever.invoke(query)
+            # st.write("### Debug: Retrieved Documents")
+            # for doc in docs:
+            #     st.write("---")
+            #     st.write(f"Content: {doc.page_content[:200]}...")
+            #     st.write(f"Source: {doc.metadata.get('source', 'Unknown')}")
+
             chain = (
                 {
                     "docs": retriever,
@@ -244,4 +278,5 @@ if url:
 
             result = chain.invoke(query)
             # print(chain.invoke("What is the pricing of GPT-4 Turbo with vision."))
+            # st.write("### Answer")
             st.write(result.content)

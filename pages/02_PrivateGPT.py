@@ -1,9 +1,9 @@
 from langchain_community.chat_models import ChatOllama
-from langchain.document_loaders import UnstructuredFileLoader
+from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OllamaEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
@@ -151,20 +151,21 @@ def reset_memory_and_messages():
 
 prompt = ChatPromptTemplate.from_template(
     """
-You are an AI assistant. Use only the following context and questions from the human to answer. Do not use your training data. 
-If the answer is not in the context, say "I don't know". Do not repeat anything from the prompt or previous answers.
+You are a concise AI assistant. Follow these rules strictly:
+1. Use ONLY the provided context to answer
+2. If information is not in the context, say "I don't know"
+3. Keep responses brief and focused (2-3 sentences maximum)
+4. Never repeat previous conversations
+5. Never mention that you're using any context or history
 
------------------------------
 Context:
 {context}
 
------------------------------
-Previous questions and answers:
+Previous conversation (for reference only, do not mention):
 {history}
 
------------------------------
-Current question:
-{question}"""
+Question: {question}
+Answer: """
 )
 
 st.title("PrivateGPT")

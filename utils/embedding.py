@@ -1,12 +1,12 @@
-from langchain.document_loaders import UnstructuredFileLoader
+from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain.vectorstores.faiss import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
 import streamlit as st
 
 
-@st.cache_data(show_spinner="Embedding file...")
+@st.cache_resource(show_spinner="Embedding file...")
 def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_name):
     """
     Embed a file and return a retriever for the embedded content.

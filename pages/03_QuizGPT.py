@@ -1,12 +1,12 @@
 import json
-from langchain.document_loaders import UnstructuredFileLoader
+from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain.schema.output import Generation
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.callbacks import StreamingStdOutCallbackHandler
 import streamlit as st
-from langchain.retrievers import WikipediaRetriever
+from langchain_community.retrievers import WikipediaRetriever
 from langchain.schema import BaseOutputParser
 from sympy import true
 
