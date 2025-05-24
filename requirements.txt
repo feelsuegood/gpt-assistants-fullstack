@@ -44,7 +44,7 @@ Deprecated==1.2.18
 dill==0.3.7
 distro==1.9.0
 dnspython==2.4.2
-duckduckgo_search==6.4.2
+duckduckgo_search==5.3.1b1
 durationpy==0.10
 EbookLib==0.18
 effdet==0.4.1
