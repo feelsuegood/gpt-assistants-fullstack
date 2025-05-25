@@ -25,6 +25,7 @@ This project showcases different AI assistants for various use cases:
 - **Database**: SQLite
 - **File Processing**: Various document parsers (PDF, DOCX, etc.)
 - **Search**: Pinecone
+- **Authentication**: Built-in Streamlit auth
 
 ---
 
