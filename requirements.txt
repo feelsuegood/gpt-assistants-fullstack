@@ -18,6 +18,8 @@ beautifulsoup4==4.12.2
 black==23.9.1
 blinker==1.6.2
 blis==0.7.10
+boto3==1.38.23
+botocore==1.38.23
 Brotli==1.1.0
 build==1.2.2.post1
 cachetools==5.3.1
@@ -96,6 +98,7 @@ itsdangerous==2.1.2
 jedi==0.19.0
 Jinja2==3.1.2
 jiter==0.9.0
+jmespath==1.0.1
 joblib==1.3.2
 jsonpatch==1.33
 jsonpointer==2.4
@@ -232,6 +235,7 @@ requests-toolbelt==1.0.0
 rich==13.5.2
 rpds-py==0.10.2
 rsa==4.9.1
+s3transfer==0.13.0
 safetensors==0.3.3
 scikit-learn==1.3.1
 scipy==1.11.3
