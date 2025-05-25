@@ -1,125 +1,124 @@
-# GPT Assistansts 🤖💁‍♀️
+# 🤖 GPT Assistants Fullstack
 
-A multi-purpose AI assistants platform built with LangChain and Streamlit.  
-This project enables document Q&A, private file chat, quiz generation, and more, all running on your machine with support for both OpenAI and local models.
+Built a comprehensive AI assistant platform using OpenAI GPT, LangChain, and Streamlit that enables document analysis, private chat, quiz generation, meeting summarization, and investment analysis through eight specialized GPT applications.
 
----
+## 🎯 Overview
 
-## ✨ Features
+This project showcases different AI assistants for various use cases:
 
-- **DocumentGPT** 📄:  
-  Upload `.txt`, `.pdf`, or `.docx` files and chat with an AI about their content.  
-  Session memory is used to provide context-aware answers.
-
-- **PrivateGPT** 🔒:  
-  Chat privately with your own files using local LLMs (e.g., Mistral, Qwen).  
-  Choose between multiple models and keep your data on your device.
-
-- **QuizGPT** 📝:  
-  Generate multiple-choice quizzes from uploaded files or Wikipedia articles.  
-  Test your knowledge interactively and get instant feedback.
-
-- **SiteGPT** 📝:  
-  Ask anything about a website — SiteGPT loads the site's sitemap, extracts the content, and answers your questions accurately.
-
-- **MeetingGPT** 📝:  
-  Upload a video and instantly get a transcript, a summary, and a chatbot to answer your questions.
-
-- **InvestorGPT** 📝:
-  [Agent Types](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/)
-- **Extensible** 🧩:  
-  Easily add new GPT-powered tools (e.g., InvestorGPT) by creating new Streamlit pages.
+- 📄 **DocumentGPT**: Analyze and interact with documents
+- 🔒 **PrivateGPT**: Secure, private conversations with AI
+- 💡 **QuizGPT**: AI-powered quiz generation
+- 📌 **SiteGPT**: Website analysis and interaction
+- 📆 **MeetingGPT**: AI assistant for meeting management
+- 📈 **InvestorGPT**: AI-powered investment analysis
+- 🔧 **AssistantAPI**: OpenAI Assistant API implementation
+- 📁 **FileAssistantAPI**: File handling with OpenAI Assistant API
 
 ---
 
-## 🗂️ Project Structure
+## 🛠️ Technologies
 
-```
-.
-├── pages/           # Streamlit app pages (DocumentGPT, PrivateGPT, QuizGPT, etc.)
-├── utils/           # Utility modules (e.g., embedding functions)
-├── practice/        # Example notebooks and experiments
-├── requirements.txt # Python dependencies
-├── Home.py          # Main Streamlit entry point
-└── README.md        # This file
-```
+- **Frontend**: Streamlit
+- **Backend**: Python, FastAPI
+- **AI**: OpenAI GPT, LangChain
+- **Database**: SQLite
+- **File Processing**: Various document parsers (PDF, DOCX, etc.)
+- **Search**: Pinecone
 
 ---
 
-## 🚀 Installation
+## 🚀 Getting Started
 
 1. **Clone the repository**
+    ```bash
+    git clone https://github.com/feelsuegood/gpt-assistants-fullstack.git
+    cd gpt-assistants-fullstack
+    ```
 
-   ```bash
-   git clone https://github.com/feelsuegood/gpt-assistants.git
-   cd gpt-assistants
-   ```
-
-2. **Set up a virtual environment**
-
-   ```bash
-   python3.11 -m venv env
-   source env/bin/activate
-   ```
+2. **Set up virtual environment**
+    ```bash
+    python -m venv env
+    source env/bin/activate  # On Windows: env\Scripts\activate
+    ```
 
 3. **Install dependencies**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ````
 
 4. **Install Ollama (for local models)** 🦙
 
-   - Download and install Ollama from [https://ollama.com/download](https://ollama.com/download)
-   - Start the Ollama server:
-     ```bash
-     ollama serve
-     ```
-   - Pull the required models (Mistral, Qwen):
-     ```bash
-     ollama pull mistral
-     ollama pull qwen:0.5b
-     ```
+- Download and install Ollama from [https://ollama.com/download](https://ollama.com/download)
+- Start the Ollama server:
+  ```bash
+  ollama serve
+  ```
+- Pull the required models (Mistral, Qwen):
+  ```bash
+  ollama pull mistral
+  ollama pull qwen:0.5b
+  ```
 
 5. **Configure API keys** 🔑
 
-   - Create a `.env` file and add your OpenAI API key and any other required secrets.
-   - (Optional) Set up a Pinecone account for vector storage.
+- Create a `.env` file and add your OpenAI API key and any other required secrets.
+- (Optional) Set up a Pinecone account for vector storage.
 
 6. **Run the app**
-   ```bash
-   streamlit run Home.py
-   ```
+    ```bash
+    streamlit run Home.py
+    ```
 
 ---
 
-## 🧠 Model Information
+## 🔑 Environment Variables
 
-- **Ollama Local Models** 🦙
+Required environment variables:
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `LANGCHAIN_API_KEY`: Your Langchain API key
+- `HUGGINGFACEHUB_API_TOKEN`: Your Hugging Face API token
+- `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage API key
+- `PINECONE_API_KEY`: Your Pinecone API key (optional)
+**OpenAI GPT** (for cloud-based features) ☁️
 
-  - **Mistral** and **Qwen (qwen:0.5b)** are used via the [Ollama](https://ollama.com/) local model server.
-  - Make sure to pull these models with `ollama pull mistral` and `ollama pull qwen:0.5b` before running PrivateGPT.
+**Ollama Local Models** 🦙
+-  **Mistral** and **Qwen (qwen:0.5b)** are used via the [Ollama](https://ollama.com/) local model server.
+- Make sure to pull these models with `ollama pull mistral` and `ollama pull qwen:0.5b` before running PrivateGPT.
 
-- **OpenAI GPT** (for cloud-based features) ☁️
+**Orca Mini 3B** (`orca-mini-3b-gguf2-q4_0.gguf`) 🐳
+- Developer: Microsoft
+- License: CC BY-NC-SA 4.0 (non-commercial research only)
+  
+### 📄 DocumentGPT
+- Upload and analyze documents
+- Ask questions about document content
+- Extract key information
 
-- **Orca Mini 3B** (`orca-mini-3b-gguf2-q4_0.gguf`) 🐳
+### 🔒 PrivateGPT
+- Secure, private conversations
+- Local model processing
+- Data privacy focus
 
-  - Developer: Microsoft
-  - License: CC BY-NC-SA 4.0 (non-commercial research only)
+### 💡 QuizGPT
+- Generate quizzes from content
+- Multiple question types
+- Automatic grading
 
----
+### 📌 SiteGPT
+- Website analysis
+- Content extraction
+- Interactive Q&A
 
-## 📒 Notebooks & Examples
+### 📆 MeetingGPT
+- Meeting summarization
+- Action item extraction
+- Meeting analytics
 
-- See the `practice/` folder for Jupyter notebooks demonstrating core features and experiments.
-
----
-
-## 📚 References
-
-- [Streamlit Documentation](https://docs.streamlit.io/develop/api-reference)
-- [Nomad Coders fullstack GPT](https://nomadcoders.co/fullstack-gpt)
-- [Langchain Tools/Toolkits](https://python.langchain.com/docs/integrations/tools/?_gl=1*ldavbi*_ga*ODYyMjkyMzAuMTc0Njk4NjYxNw..*_ga_47WX3HKKY2*czE3NDY5ODY2ODMkbzEkZzEkdDE3NDY5ODY2OTMkajAkbDAkaDA)
+### 📈 InvestorGPT
+- Financial analysis
+- Stock market data
+- Investment recommendations
 
 ---
 
@@ -142,19 +141,24 @@ This project enables document Q&A, private file chat, quiz generation, and more,
 - - Upgrade langchain to langain_community
 - [ ] Improve stock symbol search reliability by replacing or supplementing DuckDuckGo, which can sometimes be unreliable.
 - [ ] Current window link in Home.py is not possible (streamlit doesn't support)
-- [ ] Need to add input function for OpenAI API Key and Alpha Vantage API Key from users for deployed app
+- [ ] Add input function for OpenAI API Key and Alpha Vantage API Key from users for deployed app
 - [ ] ChefGPT (Custom GPT): create user authentication function for a user to mark their favourite recipes and see their favourite recipes list 
 
 
 ---
 
 ## 🏷️ License
+- CC BY-NC-SA 4.0 (non-commercial research only)
+- This project is for non-commercial research and educational purposes only.  
+- See individual model licenses for details.
 
-This project is for non-commercial research and educational purposes only.  
-See individual model licenses for details.
-
-## More
-
+## 📚 References
+- [Streamlit Documentation](https://docs.streamlit.io/develop/api-reference)
+- [Fullstack GPT - Nomad Coders](https://nomadcoders.co/fullstack-gpt)
+- [Langchain Tools/Toolkits](https://python.langchain.com/docs/integrations/tools/?_gl=1*ldavbi*_ga*ODYyMjkyMzAuMTc0Njk4NjYxNw..*_ga_47WX3HKKY2*czE3NDY5ODY2ODMkbzEkZzEkdDE3NDY5ODY2OTMkajAkbDAkaDA)
 - Use [langsmith](https://smith.langchain.com/) to trace langchain output
 - https://docs.pydantic.dev/latest/ to use OPENAI function calling
+  
+
+
 

@@ -26,7 +26,9 @@ with col1:
     st.link_button("📄 DocumentGPT", "DocumentGPT", use_container_width=True)
     st.link_button("🔒 PrivateGPT", "PrivateGPT", use_container_width=True)
     st.link_button("💡 QuizGPT", "QuizGPT", use_container_width=True)
-with col2:
     st.link_button("📌 SiteGPT", "SiteGPT", use_container_width=True)
+with col2:
     st.link_button("📆 MeetingGPT", "MeetingGPT", use_container_width=True)
     st.link_button("📈 InvestorGPT", "InvestorGPT", use_container_width=True)
+    st.link_button("🚧 AssistantAPI", "AssistantAPI", use_container_width=True)
+    st.link_button("🚧 FileAssistantAPI", "FileAssistantAPI", use_container_width=True)
