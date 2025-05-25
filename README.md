@@ -15,7 +15,6 @@ This project showcases different AI assistants for various use cases:
 - 🔧 **AssistantAPI**: OpenAI Assistant API implementation
 - 📁 **FileAssistantAPI**: File handling with OpenAI Assistant API
 
----
 
 ## 🛠️ Technologies
 
@@ -27,7 +26,6 @@ This project showcases different AI assistants for various use cases:
 - **Search**: Pinecone
 - **Authentication**: Built-in Streamlit auth
 
----
 
 ## 🚀 Getting Started
 
@@ -71,7 +69,6 @@ This project showcases different AI assistants for various use cases:
     streamlit run Home.py
     ```
 
----
 
 ## 🔑 Environment Variables
 
@@ -80,7 +77,8 @@ Required environment variables:
 - `LANGCHAIN_API_KEY`: Your Langchain API key
 - `HUGGINGFACEHUB_API_TOKEN`: Your Hugging Face API token
 - `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage API key
-- `PINECONE_API_KEY`: Your Pinecone API key (optional)
+- `PINECONE_API_KEY`: Your Pinecone API key (optional)  
+
 **OpenAI GPT** (for cloud-based features) ☁️
 
 **Ollama Local Models** 🦙
@@ -121,7 +119,6 @@ Required environment variables:
 - Stock market data
 - Investment recommendations
 
----
 
 ## 📝 To Do
 
@@ -146,7 +143,6 @@ Required environment variables:
 - [ ] ChefGPT (Custom GPT): create user authentication function for a user to mark their favourite recipes and see their favourite recipes list 
 
 
----
 
 ## 🏷️ License
 - CC BY-NC-SA 4.0 (non-commercial research only)
