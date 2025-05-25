@@ -5,7 +5,6 @@ import openai
 import streamlit as st
 import os
 import tempfile
-import openai
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import TextLoader
@@ -15,8 +14,6 @@ from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
-
-openai.api_type = "openai"
 
 # Create temporary directory
 TEMP_DIR = tempfile.mkdtemp()

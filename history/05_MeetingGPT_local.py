@@ -2,10 +2,9 @@ import subprocess
 from pydub import AudioSegment
 import math
 import openai
+import glob
 import streamlit as st
 import os
-import tempfile
-import openai
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import TextLoader
@@ -16,14 +15,6 @@ from langchain.storage import LocalFileStore
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 
-openai.api_type = "openai"
-
-# Create temporary directory
-TEMP_DIR = tempfile.mkdtemp()
-CACHE_DIR = os.path.join(TEMP_DIR, "cache")
-CHUNKS_DIR = os.path.join(TEMP_DIR, "chunks")
-os.makedirs(CACHE_DIR, exist_ok=True)
-os.makedirs(CHUNKS_DIR, exist_ok=True)
 
 llm = ChatOpenAI(
     temperature=0.1,
@@ -33,15 +24,20 @@ splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     chunk_overlap=100,
 )
 
+# kill switch
+# Have to change it every time: video-file-name.txt
+has_transcript = os.path.exists("./.cache/get-claude.txt")
+
 
 @st.cache_resource(show_spinner="Embedding file...")
 def embed_file(file_path):
     file_name = os.path.basename(file_path)
     cache_dir = LocalFileStore(
-        os.path.join(TEMP_DIR, f"meeting_embeddings_{file_name}")
+        f"./.cache/meeting_embeddings/{file_name}",
     )
     loader = TextLoader(file_path)
     docs = loader.load_and_split(text_splitter=splitter)
+    # [x] variable -> OpenAIEmbeddings()
     embeddings = OpenAIEmbeddings()
     cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
         embeddings,
@@ -57,78 +53,85 @@ def embed_file(file_path):
 
 @st.cache_data()
 def extract_audio_from_video(video_path):
-    audio_path = os.path.join(
-        TEMP_DIR, os.path.basename(video_path).replace("mp4", "mp3")
-    )
+    if has_transcript:
+        return
+    audio_path = video_path.replace("mp4", "mp3")
     command = ["ffmpeg", "-y", "-i", video_path, "-vn", audio_path]
     subprocess.run(command)
-    return audio_path
 
 
 @st.cache_data()
-def cut_audio_in_chunks(audio_path, chunk_size):
+def cut_audio_in_chunks(audio_path, chunk_size, chunks_folder):
+    if has_transcript:
+        return
     track = AudioSegment.from_mp3(audio_path)
     chunk_leng = chunk_size * 60 * 1000
     chunks = math.ceil(len(track) / chunk_leng)
-    chunk_paths = []
     for i in range(chunks):
         start_time = i * chunk_leng
         end_time = (i + 1) * chunk_leng
         chunk = track[start_time:end_time]
-        chunk_path = os.path.join(CHUNKS_DIR, f"chunk_{i}.mp3")
-        chunk.export(chunk_path, format="mp3")
-        chunk_paths.append(chunk_path)
-    return chunk_paths
+        chunk.export(f"{chunks_folder}/chunk_{i}.mp3", format="mp3")
 
 
 @st.cache_data()
-def transcribe_chunks(chunk_paths, transcript_path):
-    with open(transcript_path, "w") as text_file:
-        for file in chunk_paths:
-            with open(file, "rb") as audio_file:
-                transcript = openai.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audio_file,
-                    language="en",
-                )
-                text_file.write(transcript.text)
+def transcribe_chunks(chunks_folder, transcript_path):
+    if has_transcript:
+        return
+    files = glob.glob(f"{chunks_folder}/*.mp3")
+    files.sort()
+    for file in files:
+        with open(file, "rb") as audio_file, open(transcript_path, "a") as text_file:
+            transcript = openai.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+                language="en",
+            )
+            text_file.write(transcript.text)
 
 
 st.set_page_config(page_title="MeetingGPT", page_icon="📆")
 
+# st.balloons()
+
 st.markdown(
     """
-# MeetingGPT
+ # MeetingGPT
              
-Welcome to MeetingGPT, upload a video and I will give you a transcript, a summary and a chat bot to ask any questions about it.
+ Welcome to MeetingGPT, upload a video and I will give you a transcript, a summary and a chat bot to ask any questions about it.
  
-Get started by uploading a video file in the sidebar.
-"""
+ Get started by uploading a video file in the sidebar.
+ """
 )
 
 with st.sidebar:
     video = st.file_uploader("Video", type=["mp4", "avi", "mkv", "mov"])
 
 if video:
+    chunks_folder = "./.cache/chunks"
     with st.status("Loading the video...") as status:
-        # Create temporary file path
-        video_path = os.path.join(TEMP_DIR, video.name)
-        transcript_path = os.path.join(TEMP_DIR, video.name.replace("mp4", "txt"))
-
-        # Save video file
+        video_content = video.read()
+        video_path = f"./.cache/{video.name}"
+        audio_path = video_path.replace("mp4", "mp3")
+        transcript_path = video_path.replace("mp4", "txt")
         with open(video_path, "wb") as f:
-            f.write(video.read())
-
-        status.update(label="Extracting the audio...")
-        audio_path = extract_audio_from_video(video_path)
-
-        status.update(label="Cutting audio into chunks...")
-        chunk_paths = cut_audio_in_chunks(audio_path, 5)
-
+            f.write(video_content)
+        status.update(label="Extrating the audio...")
+        extract_audio_from_video(
+            video_path,
+        )
+        status.update(label="Extrating the audio...")
+        cut_audio_in_chunks(audio_path, 5, chunks_folder)
         status.update(label="Transcribing the audio...")
-        transcribe_chunks(chunk_paths, transcript_path)
+        transcribe_chunks(chunks_folder, transcript_path)
 
-    transcript_tab, summary_tab, qa_tab = st.tabs(["Transcript", "Summary", "Q&A"])
+    transcript_tab, summary_tab, qa_tab = st.tabs(
+        [
+            "Transcript",
+            "Summary",
+            "Q&A",
+        ]
+    )
 
     with transcript_tab:
         with open(transcript_path, "r") as file:
@@ -138,6 +141,7 @@ if video:
         start = st.button("Generate Summary")
         if start:
             loader = TextLoader(transcript_path)
+            splitter = splitter
             docs = loader.load_and_split(text_splitter=splitter)
 
             first_summary_prompt = ChatPromptTemplate.from_template(
@@ -148,6 +152,9 @@ if video:
                 """
             )
 
+            # first_summary_chain = first_summary_prompt|llm
+            # summary = first_summary_chain.invoke({"text": docs[0].page_content}).content
+            # * don't have to add ".conentent"
             first_summary_chain = first_summary_prompt | llm | StrOutputParser()
             summary = first_summary_chain.invoke({"text": docs[0].page_content})
 
@@ -186,10 +193,14 @@ if video:
                             "context": doc.page_content,
                         }
                     )
+                    # intermediate summary
                     st.write(summary)
             st.write(summary)
 
     with qa_tab:
+
         retriever = embed_file(transcript_path)
+
         docs = retriever.invoke("How the birth chart affects someone's personality?")
+
         st.write(docs)

@@ -1,7 +1,6 @@
-from langchain_community.chat_models import ChatOllama
-from langchain_community.document_loaders import UnstructuredFileLoader
+from langchain_ollama import ChatOllama
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
@@ -51,8 +50,6 @@ if "messages" not in st.session_state:
 
 if "previous_model" not in st.session_state:
     st.session_state["previous_model"] = "mistral"
-
-if "llm" not in st.session_state:
     st.session_state["llm"] = ChatOllama(
         model="mistrral:latest",
         temperature=0.1,
@@ -62,7 +59,6 @@ if "llm" not in st.session_state:
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationSummaryBufferMemory(
         llm=st.session_state["llm"],
-        # If max token is too small (e.g., 250), ai repeats its answers.
         max_token_limit=1000,
         return_messages=True,
         memory_key="history",
@@ -81,19 +77,16 @@ selected_model = st.session_state["previous_model"]
 
 # change llm model
 def change_llm_model(model_name):
-    # add ":latest" tag for mistral
-    if model_name == "mistral":
-        model_name = f"{model_name}:latest"
     return ChatOllama(
         model=model_name,
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
+        verbose=True,
     )
 
 
 # change embeddings model
 def change_embeddings_model(model_name):
-    # add ":latest" tag for mistral
     return OllamaEmbeddings(
         model=model_name,
     )
@@ -188,10 +181,9 @@ with st.sidebar:
         "Upload a .txt, .pdf, or .docx file", type=["txt", "pdf", "docx"]
     )
     # * Code Challenge: select box to choose a model that has a drop-down option
-    # a user can chooser between mistral and qwen:0.5b (no storage issue 🥲)
     selected_model = st.selectbox(
         "Select a model",
-        options=["mistral", "qwen:0.5b"],
+        options=["mistral", "gemma3"],
         key="model_selector",
     )
     st.markdown(
@@ -222,7 +214,7 @@ if file:
         file,
         "private_files",
         "private_embeddings",
-        OllamaEmbeddings(model=st.session_state["previous_model"]),
+        OllamaEmbeddings(model="mistral"),
         selected_model,
     )
     send_message("I'm ready. Ask away!", "ai", save=False)

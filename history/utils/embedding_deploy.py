@@ -1,4 +1,4 @@
-from langchain_community.document_loaders import UnstructuredFileLoader
+from langchain_unstructured import UnstructuredLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -6,7 +6,6 @@ from langchain.storage import LocalFileStore
 import streamlit as st
 import tempfile
 import os
-from pathlib import Path
 
 
 @st.cache_resource(show_spinner="Embedding file...")
@@ -40,7 +39,7 @@ def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_
             chunk_overlap=100,
         )
 
-        loader = UnstructuredFileLoader(temp_file_path)
+        loader = UnstructuredLoader(temp_file_path)
         docs = loader.load_and_split(text_splitter=splitter)
 
         # Embedding processing (performed in memory)

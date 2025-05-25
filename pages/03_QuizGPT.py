@@ -1,6 +1,7 @@
+import os
+import tempfile
 import json
-from langchain_community.document_loaders import UnstructuredFileLoader
-from langchain.schema.output import Generation
+from langchain_unstructured import UnstructuredLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -8,7 +9,7 @@ from langchain.callbacks import StreamingStdOutCallbackHandler
 import streamlit as st
 from langchain_community.retrievers import WikipediaRetriever
 from langchain.schema import BaseOutputParser
-from sympy import true
+
 
 # [ ] Code challenge #1: using function calling instead of prompts
 # [ ] Code challenge #2: Create a switch (enable/disable) that shows the correct answer or not,
@@ -181,16 +182,27 @@ def split_file(file):
     Returns:
         A retriever object that can be used to search the embedded content
     """
-    file_content = file.read()
-    file_path = f"./.cache/quiz_files/{file.name}"
-    with open(file_path, "wb") as f:
-        f.write(file_content)
+    # Create a temporary directory
+    with tempfile.TemporaryDirectory() as temp_dir:
+        file_content = file.read()
+        # print(file.name) -> ok
+        # Create model-specific directory within temp_dir
+        model_dir = os.path.join(temp_dir, "quiz_files")
+        os.makedirs(model_dir, exist_ok=True)
+        temp_file_path = os.path.join(model_dir, file.name)
+
+        # Save the temporary file
+        with open(temp_file_path, "wb") as f:
+            f.write(file_content)
+
+        # Process the documents
         splitter = CharacterTextSplitter.from_tiktoken_encoder(
             separator="\n",
             chunk_size=600,
             chunk_overlap=100,
         )
-        loader = UnstructuredFileLoader(file_path)
+
+        loader = UnstructuredLoader(temp_file_path)
         docs = loader.load_and_split(text_splitter=splitter)
         return docs
 
@@ -232,6 +244,7 @@ with st.sidebar:
             ],
         )
         if file:
+            topic = file.name
             docs = split_file(file)
     else:
         topic = st.text_input("Search Wikipedia...")
@@ -256,7 +269,7 @@ else:
     # )
     # # ! don't forget '.content'
     # st.write(formatting_response.content)
-    quiz_topic = topic if topic else (file.name if file is not None else "")
+    quiz_topic = topic
     response = run_quiz_chain(docs, quiz_topic)
     # st.write(response)
     with st.form("questions_form"):
@@ -268,12 +281,12 @@ else:
                 [answer["answer"] for answer in question["answers"]],
                 index=None,
             )
-            # st.json({"value": value, "correct": true} in question["answers"])
-            if {"answer": value, "correct": true} in question["answers"]:
+            # st.json({"value": value, "correct": True} in question["answers"])
+            if {"answer": value, "correct": True} in question["answers"]:
                 st.success("Correct 🙆🏻‍♀️")
             elif value is not None:
                 for answer in question["answers"]:
-                    if answer["correct"] == true:
+                    if answer["correct"] == True:
                         correct_answer = answer["answer"]
                 st.error(f"Incorrect 🙅🏻‍♀️. \n\nThe answer is '{correct_answer}'")
         button = st.form_submit_button()
