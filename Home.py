@@ -37,24 +37,48 @@ st.balloons()
 
 st.markdown(
     """
-# Hello!
+# 🤖 Welcome to my GPT Assistants Project!
 
-Welcome to my GPT Assistants Fullstack Portfolio Site.
+**This is a comprehensive AI-powered assistant platform that demonstrates various applications of Large Language Models (LLMs) in real-world scenarios.**
 
-Here are the apps I've made:
+- **📄 DocumentGPT**: Chat with your documents using OpenAI's GPT
+- **🔒 PrivateGPT**: Secure document analysis using local LLMs (Mistral, Qwen)
+- **💡 QuizGPT**: AI-powered quiz generation from any content
+- **📌 SiteGPT**: Intelligent website analysis and Q&A system
+- **📆 MeetingGPT**: Automated meeting transcription and summarization
+- **📈 InvestorGPT**: AI-powered investment research assistant
+
+### 🚧 Coming Soon
+- **👨‍🍳 ChefGPT**: Recipe recommendations and cooking assistant
+- **🔧 AssistantAPI**: OpenAI Assistants API implementation for investment research
+- **📁 FileAssistantAPI**: File handling with OpenAI Assistants API
+
+**Feel free to explore each application and see AI assistants in action!**
 
 """
 )
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     st.link_button("📄 DocumentGPT", "DocumentGPT", use_container_width=True)
     st.link_button("🔒 PrivateGPT", "PrivateGPT", use_container_width=True)
     st.link_button("💡 QuizGPT", "QuizGPT", use_container_width=True)
-    st.link_button("📌 SiteGPT", "SiteGPT", use_container_width=True)
+
 with col2:
+    st.link_button("📌 SiteGPT", "SiteGPT", use_container_width=True)
     st.link_button("📆 MeetingGPT", "MeetingGPT", use_container_width=True)
     st.link_button("📈 InvestorGPT", "InvestorGPT", use_container_width=True)
-    st.link_button("🚧 AssistantAPI", "AssistantAPI", use_container_width=True)
-    st.link_button("🚧 FileAssistantAPI", "FileAssistantAPI", use_container_width=True)
+
+with col3:
+    st.link_button("⚠️ 🍳 ChefGPT", "ChefGPT", use_container_width=True)
+    st.link_button(
+        "⚠️ 📊 AssistantsAPI",
+        "AssistantsAPI",
+        use_container_width=True,
+    )
+    st.link_button(
+        "⚠️ 📚 FileAssistantsAPI",
+        "FileAssistantsAPI",
+        use_container_width=True,
+    )
