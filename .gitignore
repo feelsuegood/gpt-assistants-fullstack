@@ -13,3 +13,4 @@ practice/prompt.json
 practice/prompt.yaml
 __pycache__/
 *.pyc
+chroma.sqlite3
