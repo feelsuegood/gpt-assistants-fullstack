@@ -5,7 +5,24 @@
 # import time
 # from langchain.document_loaders import CSVLoader
 # from langchain.text_splitter import RecursiveCharacterTextSplitter
+import streamlit as st
 
+st.set_page_config(
+    page_title="ChefGPT",
+    page_icon="�‍🍳",
+)
+
+st.markdown(
+    """
+# ChefGPT  
+
+** To be continued... **
+
+Welcome to ChefGPT.
+
+Write down the name of a recipe and our Agent will do the research for you.
+"""
+)
 
 # pc = Pinecone(
 #     api_key=os.environ.get("PINECONE_API_KEY"),

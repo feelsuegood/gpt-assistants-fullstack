@@ -3,6 +3,21 @@
 # import json
 # import openai as client
 
+import streamlit as st
+
+st.set_page_config(
+    page_title="AssistantsAPI",
+    page_icon="🔧",
+)
+
+st.markdown(
+    """
+# AssistantsAPI  
+
+** To be continued... **
+"""
+)
+
 # # send message -> get_messages -> run -> get_runt().status
 # # TODO: code challenge: implement this notebook to streamlit
 # # TODO: hint keep refresh run assistants api

@@ -15,6 +15,10 @@ from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 # from duckduckgo_search import DDGS
 import requests
 
+st.set_page_config(
+    page_title="InvestorGPT",
+    page_icon="📈",
+)
 #! limit 25 requests on alpha vantage api
 
 # Initialize a UserAgent object
@@ -183,10 +187,6 @@ agent = initialize_agent(
     },
 )
 
-st.set_page_config(
-    page_title="InvestorGPT",
-    page_icon="📈",
-)
 
 st.markdown(
     """

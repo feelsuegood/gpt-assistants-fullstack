@@ -1,9 +1,5 @@
 from langchain_ollama import ChatOllama
-from langchain.text_splitter import CharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
-from langchain.embeddings import CacheBackedEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain.storage import LocalFileStore
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
@@ -17,10 +13,6 @@ st.set_page_config(
     page_title="PrivateGPT",
     page_icon="🔒",
 )
-
-# add ollama server url config
-if "ollama_api_url" not in st.session_state:
-    st.session_state["ollama_api_url"] = "http://localhost:11434"
 
 
 class ChatCallBackHandler(BaseCallbackHandler):
@@ -55,7 +47,9 @@ if "messages" not in st.session_state:
 if "previous_model" not in st.session_state:
     st.session_state["previous_model"] = "mistral"
     st.session_state["llm"] = ChatOllama(
-        model="mistral",
+        # maintain mistral model for embedding
+        # because loading embedding model is very slow
+        model="mistrral:latest",
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
     )
@@ -85,7 +79,6 @@ def change_llm_model(model_name):
         model=model_name,
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
-        base_url=st.session_state["ollama_api_url"],  # config API URL
         verbose=True,
     )
 
@@ -94,7 +87,6 @@ def change_llm_model(model_name):
 def change_embeddings_model(model_name):
     return OllamaEmbeddings(
         model=model_name,
-        base_url=st.session_state["ollama_api_url"],  # config API URL
     )
 
 
@@ -209,15 +201,10 @@ with st.sidebar:
 if file:
     # Check Ollama server connection
     try:
-        requests.get(f"{st.session_state['ollama_api_url']}/api/tags")
+        requests.get("http://localhost:11434/api/tags")
     except requests.exceptions.ConnectionError:
         st.error(
-            """Unable to connect to Ollama server. Please make sure:
-            1. Ollama is running on your machine
-            2. The API URL is correct
-            3. Your Ollama server is accessible
-            
-            Start the server with 'ollama serve' command."""
+            "Unable to connect to Ollama server. Start the server with the 'ollama serve' command."
         )
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
     # New document → new context → new memory
@@ -228,11 +215,7 @@ if file:
         file,
         "private_files",
         "private_embeddings",
-        # embedding needs "latest" tag
-        OllamaEmbeddings(
-            model="mistral:latest",
-            base_url=st.session_state["ollama_api_url"],  # config API URL
-        ),
+        OllamaEmbeddings(model="mistral"),
         selected_model,
     )
     send_message("I'm ready. Ask away!", "ai", save=False)

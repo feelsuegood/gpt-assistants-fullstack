@@ -1,4 +1,23 @@
-import openai as client
+# import openai as client
+
+import streamlit as st
+
+st.set_page_config(
+    page_title="FileAssistantsAPI",
+    page_icon="📁",
+)
+
+st.markdown(
+    """
+# FileAssistantsAPI  
+
+** To be continued... **
+
+Welcome to FileAssistantsAPI.
+
+Write down the name of a file and our Agent will do the research for you.
+"""
+)
 
 #
 # TODO: code challenge
