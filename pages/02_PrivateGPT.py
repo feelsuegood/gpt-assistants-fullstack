@@ -10,13 +10,17 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
 import requests
-from utils.embedding_local import embed_local_file
+from utils.embedding import embed_file
 
 
 st.set_page_config(
     page_title="PrivateGPT",
     page_icon="🔒",
 )
+
+# add ollama server url config
+if "ollama_api_url" not in st.session_state:
+    st.session_state["ollama_api_url"] = "http://localhost:11434"
 
 
 class ChatCallBackHandler(BaseCallbackHandler):
@@ -51,7 +55,7 @@ if "messages" not in st.session_state:
 if "previous_model" not in st.session_state:
     st.session_state["previous_model"] = "mistral"
     st.session_state["llm"] = ChatOllama(
-        model="mistrral:latest",
+        model="mistral",
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
     )
@@ -81,6 +85,7 @@ def change_llm_model(model_name):
         model=model_name,
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
+        base_url=st.session_state["ollama_api_url"],  # config API URL
         verbose=True,
     )
 
@@ -89,6 +94,7 @@ def change_llm_model(model_name):
 def change_embeddings_model(model_name):
     return OllamaEmbeddings(
         model=model_name,
+        base_url=st.session_state["ollama_api_url"],  # config API URL
     )
 
 
@@ -165,14 +171,17 @@ st.title("PrivateGPT")
 
 st.markdown(
     """
-Welcome!
+    Welcome!
 
-This is a private chatbot that runs locally on your machine, 
+    This is a private chatbot that connects to your local Ollama instance.
+    To use this app:
+    1. Install Ollama on your machine (https://ollama.ai)
+    2. Start Ollama server with `ollama serve`
+    3. Enter your Ollama API URL in the sidebar
+    4. Upload your files and start chatting!
 
-allowing you to ask questions secretly about your files using AI.
-
-Please upload your files using the sidebar.
-"""
+    Please note: This app requires a running Ollama instance on your machine.
+    """
 )
 
 
@@ -192,7 +201,7 @@ with st.sidebar:
     )
     if st.session_state["previous_model"] != st.session_state["model_selector"]:
         # Change llm model and clear embedding cache
-        embed_local_file.clear()
+        embed_file.clear()
         st.session_state["llm"] = change_llm_model(selected_model)
         st.session_state["previous_file_name"] = None
         st.session_state["previous_model"] = selected_model
@@ -200,21 +209,30 @@ with st.sidebar:
 if file:
     # Check Ollama server connection
     try:
-        requests.get("http://localhost:11434/api/tags")
+        requests.get(f"{st.session_state['ollama_api_url']}/api/tags")
     except requests.exceptions.ConnectionError:
         st.error(
-            "Unable to connect to Ollama server. Start the server with the 'ollama serve' command."
+            """Unable to connect to Ollama server. Please make sure:
+            1. Ollama is running on your machine
+            2. The API URL is correct
+            3. Your Ollama server is accessible
+            
+            Start the server with 'ollama serve' command."""
         )
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
     # New document → new context → new memory
     if file.name != st.session_state["previous_file_name"]:
         st.session_state["previous_file_name"] = file.name
         reset_memory_and_messages()
-    retriever = embed_local_file(
+    retriever = embed_file(
         file,
         "private_files",
         "private_embeddings",
-        OllamaEmbeddings(model="mistral"),
+        # embedding needs "latest" tag
+        OllamaEmbeddings(
+            model="mistral:latest",
+            base_url=st.session_state["ollama_api_url"],  # config API URL
+        ),
         selected_model,
     )
     send_message("I'm ready. Ask away!", "ai", save=False)
