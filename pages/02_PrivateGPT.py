@@ -16,11 +16,6 @@ st.set_page_config(
 )
 
 
-# in streamlit cloud, send a message to a user that this app is not available
-def is_cloud_environment():
-    return os.getenv("STREAMLIT_CLOUD", "") == "true"
-
-
 class ChatCallBackHandler(BaseCallbackHandler):
 
     message = ""
@@ -165,7 +160,8 @@ Question: {question}
 Answer: """
 )
 
-if is_cloud_environment():
+# in streamlit cloud, send a message to a user that this app is not available
+if os.getenv("STREAMLIT_CLOUD", "") == "true":
     st.markdown("Sorry, this app is not available in the cloud environment 😿")
 else:
     st.markdown(
