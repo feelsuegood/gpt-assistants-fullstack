@@ -105,8 +105,8 @@ Required environment variables:
 **OpenAI GPT** (for cloud-based features) ☁️
 
 **Ollama Local Models** 🦙
--  **Mistral** and **Qwen (qwen:0.5b)** are used via the [Ollama](https://ollama.com/) local model server.
-- Make sure to pull these models with `ollama pull mistral` and `ollama pull qwen:0.5b` before running PrivateGPT.
+-  **Mistral** and **Gemma3** are used via the [Ollama](https://ollama.com/) local model server.
+- Make sure to pull these models with `ollama pull mistral` and `ollama pull gemma3` before running PrivateGPT.
 
 **Orca Mini 3B** (`orca-mini-3b-gguf2-q4_0.gguf`) 🐳
 - Developer: Microsoft
