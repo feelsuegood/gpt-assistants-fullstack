@@ -25,6 +25,27 @@ This project showcases different AI assistants for various use cases:
 - **File Processing**: Various document parsers (PDF, DOCX, etc.)
 - **Search**: Pinecone
 - **Authentication**: Built-in Streamlit auth
+- **Caching**: Streamlit caching with FAISS for embeddings
+- **Local Models**: Ollama for running local LLMs
+
+## 🌟 Features
+
+### Caching System
+- Efficient caching using Streamlit's `@st.cache_resource` and `@st.cache_data`
+- FAISS vector store for fast similarity search
+- Model-specific embedding caches for better performance
+- Automatic cache management for different LLM models
+
+### Cloud Deployment
+- Streamlit Cloud compatible
+- Proper handling of temporary files and directories
+- Environment-aware configurations
+- Secure API key management
+
+### Local Development
+- Support for local LLM models via Ollama
+- Local file caching for faster development
+- Easy switching between cloud and local modes
 
 
 ## 🚀 Getting Started
@@ -44,7 +65,7 @@ This project showcases different AI assistants for various use cases:
 3. **Install dependencies**
     ```bash
     pip install -r requirements.txt
-    ````
+    ```
 
 4. **Install Ollama (for local models)** 🦙
 
@@ -62,6 +83,7 @@ This project showcases different AI assistants for various use cases:
 5. **Configure API keys** 🔑
 
 - Create a `.env` file and add your OpenAI API key and any other required secrets.
+- Create a `.streamlit/secrets.toml` file for Streamlit-specific configurations.
 - (Optional) Set up a Pinecone account for vector storage.
 
 6. **Run the app**
@@ -77,7 +99,8 @@ Required environment variables:
 - `LANGCHAIN_API_KEY`: Your Langchain API key
 - `HUGGINGFACEHUB_API_TOKEN`: Your Hugging Face API token
 - `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage API key
-- `PINECONE_API_KEY`: Your Pinecone API key (optional)  
+- `PINECONE_API_KEY`: Your Pinecone API key (optional)
+- `LANGCHAIN_TRACING_V2`: Set to "true" for LangSmith tracing
 
 **OpenAI GPT** (for cloud-based features) ☁️
 
@@ -93,16 +116,20 @@ Required environment variables:
 - Upload and analyze documents
 - Ask questions about document content
 - Extract key information
+- Efficient caching of embeddings for better performance
 
 ### 🔒 PrivateGPT
 - Secure, private conversations
-- Local model processing
+- Local model processing with Ollama
 - Data privacy focus
+- Support for multiple local models (Mistral, Qwen)
+- Automatic model switching with cached embeddings
 
 ### 💡 QuizGPT
 - Generate quizzes from content
 - Multiple question types
 - Automatic grading
+- Wikipedia integration for additional context
 
 ### 📌 SiteGPT
 - Website analysis
@@ -113,11 +140,14 @@ Required environment variables:
 - Meeting summarization
 - Action item extraction
 - Meeting analytics
+- Audio transcription with OpenAI Whisper
+- Efficient chunk processing for long meetings
 
 ### 📈 InvestorGPT
 - Financial analysis
 - Stock market data
 - Investment recommendations
+- Real-time market data integration
 
 
 ## 📝 To Do
@@ -136,13 +166,11 @@ Required environment variables:
     - (Hint: You can implement this using function calling.)
 - [ ] MeetingGPT: Finalise the Q&A tab by building a chatbot with document retrieval and answering capabilities. Use a chain to accurately respond to users' questions based on the meeting transcript.
   - Stuff Chain | ✅ Map-Reduce Chain | Map-Rerank Chain | Refine Chain
-- - Upgrade langchain to langain_community
+- [x] Upgrade langchain to langchain_community
 - [ ] Improve stock symbol search reliability by replacing or supplementing DuckDuckGo, which can sometimes be unreliable.
 - [ ] Current window link in Home.py is not possible (streamlit doesn't support)
 - [ ] Add input function for OpenAI API Key and Alpha Vantage API Key from users for deployed app
 - [ ] ChefGPT (Custom GPT): create user authentication function for a user to mark their favourite recipes and see their favourite recipes list 
-
-
 
 ## 🏷️ License
 - CC BY-NC-SA 4.0 (non-commercial research only)
