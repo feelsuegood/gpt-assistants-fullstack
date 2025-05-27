@@ -10,7 +10,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
 import requests
-from utils.embedding import embed_file
+from utils.embedding_local import embed_local_file
 
 
 st.set_page_config(
@@ -192,7 +192,7 @@ with st.sidebar:
     )
     if st.session_state["previous_model"] != st.session_state["model_selector"]:
         # Change llm model and clear embedding cache
-        embed_file.clear()
+        embed_local_file.clear()
         st.session_state["llm"] = change_llm_model(selected_model)
         st.session_state["previous_file_name"] = None
         st.session_state["previous_model"] = selected_model
@@ -210,7 +210,7 @@ if file:
     if file.name != st.session_state["previous_file_name"]:
         st.session_state["previous_file_name"] = file.name
         reset_memory_and_messages()
-    retriever = embed_file(
+    retriever = embed_local_file(
         file,
         "private_files",
         "private_embeddings",
