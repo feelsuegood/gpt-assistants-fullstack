@@ -17,20 +17,52 @@ def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_
     # Create a temporary directory
     with tempfile.TemporaryDirectory() as temp_dir:
         file_content = _file.read()
-        #  file_path = f"./.cache/{files_folder}_{model_name}/
         # Create model-specific directory within temp_dir
-        model_dir = os.path.join(temp_dir, f"{files_folder}_{model_name}")
-        os.makedirs(model_dir, exist_ok=True)
-        temp_file_path = os.path.join(model_dir, _file.name)
-
-        # Create cache directory within temp_dir
-        cache_dir = LocalFileStore(
-            os.path.join(temp_dir, f"{embeddings_folder}_{model_name}")
+        # model_dir = os.path.join(temp_dir, f"{files_folder}_{model_name}")
+        temp_files_dir = os.path.join(temp_dir, f"{files_folder}_{model_name}")
+        temp_embeddings_dir = os.path.join(
+            temp_dir, f"{embeddings_folder}_{model_name}"
         )
 
+        # os.makedirs(model_dir, exist_ok=True)
+        # temp_file_path = os.path.join(model_dir, _file.name)
+
+        # Create necessary directories
+        os.makedirs(temp_files_dir, exist_ok=True)
+        os.makedirs(temp_embeddings_dir, exist_ok=True)
+
+        # Define file path
+        temp_file_path = os.path.join(temp_files_dir, _file.name)
+
+        # Check if embeddings already exist for this file and model
+        if os.path.exists(temp_file_path):
+            # If file content is the same, use existing embeddings
+            with open(temp_file_path, "rb") as f:
+                if f.read() == file_content:
+                    cache_dir = LocalFileStore(temp_embeddings_dir)
+                    if os.path.exists(temp_embeddings_dir) and os.listdir(
+                        temp_embeddings_dir
+                    ):
+                        # Load existing vectorstore
+                        vectorstore = FAISS.load_local(
+                            temp_embeddings_dir, _embeddings_model
+                        )
+                        return vectorstore.as_retriever()
+
+        # # Create cache directory within temp_dir
+        # cache_dir = LocalFileStore(
+        #     os.path.join(temp_dir, f"{embeddings_folder}_{model_name}")
+        # )
+
         # Save the temporary file
+        # with open(temp_file_path, "wb") as f:
+        #     f.write(file_content)
+
+        # If file doesn't exist or content is different, create new embeddings
         with open(temp_file_path, "wb") as f:
             f.write(file_content)
+
+        cache_dir = LocalFileStore(temp_embeddings_dir)
 
         # Process the documents
         splitter = CharacterTextSplitter.from_tiktoken_encoder(
@@ -56,6 +88,9 @@ def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_
             docs,
             cached_embeddings,
         )
+
+        # Save vectorstore for future use
+        vectorstore.save_local(temp_embeddings_dir)
 
         retriever = vectorstore.as_retriever()
         return retriever
