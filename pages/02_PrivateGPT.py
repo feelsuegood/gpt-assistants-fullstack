@@ -20,7 +20,7 @@ st.set_page_config(
 
 # add ollama server url config
 if "ollama_api_url" not in st.session_state:
-    st.session_state["ollama_api_url"] = "http://127.0.0.1:11434"
+    st.session_state["ollama_api_url"] = "http://localhost:11434"
 
 
 class ChatCallBackHandler(BaseCallbackHandler):
