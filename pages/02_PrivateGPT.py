@@ -1,3 +1,4 @@
+import os
 from langchain_ollama import ChatOllama
 from langchain_ollama import OllamaEmbeddings
 from langchain.prompts import ChatPromptTemplate
@@ -13,6 +14,11 @@ st.set_page_config(
     page_title="PrivateGPT",
     page_icon="🔒",
 )
+
+
+# in streamlit cloud, send a message to a user that this app is not available
+def is_cloud_environment():
+    return os.getenv("STREAMLIT_CLOUD", "") == "true"
 
 
 class ChatCallBackHandler(BaseCallbackHandler):
@@ -49,7 +55,7 @@ if "previous_model" not in st.session_state:
     st.session_state["llm"] = ChatOllama(
         # maintain mistral model for embedding
         # because loading embedding model is very slow
-        model="mistrral:latest",
+        model="mistral",
         temperature=0.1,
         callbacks=[ChatCallBackHandler()],
     )
@@ -159,92 +165,95 @@ Question: {question}
 Answer: """
 )
 
-st.title("PrivateGPT")
-
-st.markdown(
-    """
-    Welcome!
-
-    This is a private chatbot that connects to your local Ollama instance.
-    To use this app:
-    1. Install Ollama on your machine (https://ollama.ai)
-    2. Start Ollama server with `ollama serve`
-    3. Enter your Ollama API URL in the sidebar
-    4. Upload your files and start chatting!
-
-    Please note: This app requires a running Ollama instance on your machine.
-    """
-)
-
-
-with st.sidebar:
-    file = st.file_uploader(
-        "Upload a .txt, .pdf, or .docx file", type=["txt", "pdf", "docx"]
-    )
-    # * Code Challenge: select box to choose a model that has a drop-down option
-    selected_model = st.selectbox(
-        "Select a model",
-        options=["mistral", "gemma3"],
-        key="model_selector",
-    )
-    st.markdown(
-        f"You selected: 🤖&nbsp;{selected_model}\n\n"
-        "**⚠️ Be careful that you lose your conversation history when changing the model.**"
-    )
-    if st.session_state["previous_model"] != st.session_state["model_selector"]:
-        # Change llm model and clear embedding cache
-        embed_file.clear()
-        st.session_state["llm"] = change_llm_model(selected_model)
-        st.session_state["previous_file_name"] = None
-        st.session_state["previous_model"] = selected_model
-        reset_memory_and_messages()
-if file:
-    # Check Ollama server connection
-    try:
-        requests.get("http://localhost:11434/api/tags")
-    except requests.exceptions.ConnectionError:
-        st.error(
-            "Unable to connect to Ollama server. Start the server with the 'ollama serve' command."
-        )
-    # Initializing memory when the file changes and don't drag the history about the old file to the new file.
-    # New document → new context → new memory
-    if file.name != st.session_state["previous_file_name"]:
-        st.session_state["previous_file_name"] = file.name
-        reset_memory_and_messages()
-    retriever = embed_file(
-        file,
-        "private_files",
-        "private_embeddings",
-        OllamaEmbeddings(model="mistral"),
-        selected_model,
-    )
-    send_message("I'm ready. Ask away!", "ai", save=False)
-    paint_history()
-    message = st.chat_input("Ask anything about your files...")
-    if message:
-        send_message(message, "human")
-        chain = (
-            {
-                "context": retriever | RunnableLambda(format_docs),
-                "question": RunnablePassthrough(),
-                "history": RunnableLambda(
-                    lambda _: format_history(
-                        memory.load_memory_variables({})["history"]
-                    )
-                ),
-            }
-            | prompt
-            | st.session_state["llm"]
-        )
-        # with st.status("Generating an answer..."):
-        with st.chat_message("ai"):
-            # automatically st.markdown when invoke and saved by callbackhandlers
-            with st.spinner("Generating an answer..."):
-                chain.invoke(message)
-
-        # print("🧠 MEMORY:", memory.load_memory_variables({})["history"])
-        # print("🤖 MODEL:", st.session_state["model_selector"])
-        # print("🔍 LLM:", st.session_state["llm"].model)
-
+if is_cloud_environment():
+    st.markdown("Sorry, this app is not available in the cloud environment 😿")
 else:
-    st.session_state["messages"] = []
+    st.markdown(
+        """
+        # PrivateGPT
+
+        Welcome!
+
+        This is a private chatbot that connects to your local Ollama instance.
+        To use this app:
+        1. Install Ollama on your machine (https://ollama.ai)
+        2. Start Ollama server with `ollama serve`
+        3. Enter your Ollama API URL in the sidebar
+        4. Upload your files and start chatting!
+
+        Please note: This app requires a running Ollama instance on your machine.
+        """
+    )
+
+    with st.sidebar:
+        file = st.file_uploader(
+            "Upload a .txt, .pdf, or .docx file", type=["txt", "pdf", "docx"]
+        )
+        # * Code Challenge: select box to choose a model that has a drop-down option
+        selected_model = st.selectbox(
+            "Select a model",
+            options=["mistral", "gemma3"],
+            key="model_selector",
+        )
+        st.markdown(
+            f"You selected: 🤖&nbsp;{selected_model}\n\n"
+            "**⚠️ Be careful that you lose your conversation history when changing the model.**"
+        )
+        if st.session_state["previous_model"] != st.session_state["model_selector"]:
+            # Change llm model and clear embedding cache
+            embed_file.clear()
+            st.session_state["llm"] = change_llm_model(selected_model)
+            st.session_state["previous_file_name"] = None
+            st.session_state["previous_model"] = selected_model
+            reset_memory_and_messages()
+    if file:
+        # Check Ollama server connection
+        try:
+            requests.get("http://localhost:11434/api/tags")
+        except requests.exceptions.ConnectionError:
+            st.error(
+                "Unable to connect to Ollama server. Start the server with the 'ollama serve' command."
+            )
+        # Initializing memory when the file changes and don't drag the history about the old file to the new file.
+        # New document → new context → new memory
+        if file.name != st.session_state["previous_file_name"]:
+            st.session_state["previous_file_name"] = file.name
+            reset_memory_and_messages()
+        retriever = embed_file(
+            file,
+            "private_files",
+            "private_embeddings",
+            # embedding needs "latest" tag
+            OllamaEmbeddings(model="mistral:latest"),
+            selected_model,
+        )
+        send_message("I'm ready. Ask away!", "ai", save=False)
+        paint_history()
+        message = st.chat_input("Ask anything about your files...")
+        if message:
+            send_message(message, "human")
+            chain = (
+                {
+                    "context": retriever | RunnableLambda(format_docs),
+                    "question": RunnablePassthrough(),
+                    "history": RunnableLambda(
+                        lambda _: format_history(
+                            memory.load_memory_variables({})["history"]
+                        )
+                    ),
+                }
+                | prompt
+                | st.session_state["llm"]
+            )
+            # with st.status("Generating an answer..."):
+            with st.chat_message("ai"):
+                # automatically st.markdown when invoke and saved by callbackhandlers
+                with st.spinner("Generating an answer..."):
+                    chain.invoke(message)
+
+            # print("🧠 MEMORY:", memory.load_memory_variables({})["history"])
+            # print("🤖 MODEL:", st.session_state["model_selector"])
+            # print("🔍 LLM:", st.session_state["llm"].model)
+
+    else:
+        st.session_state["messages"] = []

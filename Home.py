@@ -42,7 +42,7 @@ st.markdown(
 **This is a comprehensive AI-powered assistant platform that demonstrates various applications of Large Language Models (LLMs) in real-world scenarios.**
 
 - **📄 DocumentGPT**: Chat with your documents using OpenAI's GPT
-- **🔒 PrivateGPT**: Secure document analysis using local LLMs (Mistral, Qwen)
+- **🔒 PrivateGPT (Local Only)**: Secure document analysis using local LLMs (Mistral, Gemma3)
 - **💡 QuizGPT**: AI-powered quiz generation from any content
 - **📌 SiteGPT**: Intelligent website analysis and Q&A system
 - **📆 MeetingGPT**: Automated meeting transcription and summarization
@@ -62,7 +62,7 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.link_button("📄 DocumentGPT", "DocumentGPT", use_container_width=True)
-    st.link_button("🔒 PrivateGPT", "PrivateGPT", use_container_width=True)
+    st.link_button("🔒 PrivateGPT (Local Only)", "PrivateGPT", use_container_width=True)
     st.link_button("💡 QuizGPT", "QuizGPT", use_container_width=True)
 
 with col2:

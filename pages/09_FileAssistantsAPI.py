@@ -11,11 +11,9 @@ st.markdown(
     """
 # FileAssistantsAPI  
 
-** To be continued... **
+**To be continued...**
 
-Welcome to FileAssistantsAPI.
-
-Write down the name of a file and our Agent will do the research for you.
+OpenAI Assistants API implementation for file handling.
 """
 )
 

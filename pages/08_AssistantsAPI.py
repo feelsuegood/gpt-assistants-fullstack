@@ -14,7 +14,9 @@ st.markdown(
     """
 # AssistantsAPI  
 
-** To be continued... **
+**To be continued...**
+
+OpenAI Assistants API implementation for investment research.
 """
 )
 

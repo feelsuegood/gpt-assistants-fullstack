@@ -16,11 +16,9 @@ st.markdown(
     """
 # ChefGPT  
 
-** To be continued... **
+**To be continued...**
 
-Welcome to ChefGPT.
-
-Write down the name of a recipe and our Agent will do the research for you.
+Recipe recommendations and cooking assistant
 """
 )
 
