@@ -174,9 +174,17 @@ if not is_ollama_available():
     st.markdown(
         """
         # Sorry 😿
-        - This app is not available:
-            - Cloud Environment 
-            - When Ollama Server is not running """
+
+        **This app is only available for a local environment with Ollama Server.**  
+        
+        To use this app:
+        1. Install Ollama on your machine (https://ollama.ai)
+        2. Start Ollama server with `ollama serve`
+        3. Enter your Ollama API URL in the sidebar
+        4. Upload your files and start chatting!
+
+        Please note: This app requires a running Ollama instance on your machine.
+        """
     )
 else:
     st.markdown(
