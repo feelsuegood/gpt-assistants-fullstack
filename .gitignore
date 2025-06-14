@@ -11,6 +11,7 @@ practice/cache.db
 practice/model.json
 practice/prompt.json
 practice/prompt.yaml
+practice/db
 __pycache__/
 *.pyc
 chroma.sqlite3
