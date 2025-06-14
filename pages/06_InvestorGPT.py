@@ -43,8 +43,15 @@ class StockMarketSymbolSearchTool(BaseTool):
         StockMarketSymbolSearchToolArgsSchema
     )
 
+    # encounter rate limit error
+    # def _run(self, query):
+    #     ddg = DuckDuckGoSearchAPIWrapper(backend="api")
+    #     result = ddg.run(query)
+    #     return result
+
+    # change to HTML backend
     def _run(self, query):
-        ddg = DuckDuckGoSearchAPIWrapper(backend="api")
+        ddg = DuckDuckGoSearchAPIWrapper(backend="html")
         result = ddg.run(query)
         return result
 
