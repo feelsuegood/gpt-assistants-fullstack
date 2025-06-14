@@ -72,13 +72,13 @@ duckduckgo_search==5.3.1b1
 durationpy==0.10
 EbookLib==0.18
 effdet==0.4.1
+encodec==0.1.1
 einops==0.8.1
 elastic-transport==8.17.1
 elasticsearch==8.9.0
 email-validator==2.0.0.post2
 embedchain==0.1.128
 emoji==2.8.0
-encodec==0.1.1
 et-xmlfile==1.1.0
 executing==1.2.0
 faiss-cpu==1.7.4
@@ -310,7 +310,7 @@ regex==2024.11.6
 requests==2.32.3
 requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
-rich==13.9.4
+rich==13.7.0
 rpds-py==0.10.2
 rsa==4.9.1
 s3transfer==0.13.0
@@ -356,8 +356,8 @@ toml==0.10.2
 tomli==2.2.1
 tomli_w==1.2.0
 toolz==0.12.0
-torch==2.7.1
-torchaudio==2.7.1
+torch==2.0.1
+torchaudio==2.0.1
 torchvision==0.15.2
 tornado==6.3.3
 tqdm==4.66.1
