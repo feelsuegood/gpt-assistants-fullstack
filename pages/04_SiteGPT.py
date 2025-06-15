@@ -13,6 +13,12 @@ import streamlit as st
 # * https://openai.com/sitemap.xml
 # * https://www.google.com/forms/sitemaps.xml
 
+st.set_page_config(
+    page_title="SiteGPT",
+    page_icon="📌",
+)
+
+
 # Configure logging
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -219,15 +225,10 @@ def load_website(url):
     return vector_store.as_retriever()
 
 
-st.set_page_config(
-    page_title="SiteGPT",
-    page_icon="📌",
-)
-
-st.title("SiteGPT")
-
 st.markdown(
-    """             
+    """          
+    # SiteGPT
+       
      Ask questions about the content of a website.
              
      Start by writing the URL of the website on the sidebar.

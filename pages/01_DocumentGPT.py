@@ -58,8 +58,6 @@ if "memory" not in st.session_state:
         output_key="text",
     )
 
-memory = st.session_state["memory"]
-
 
 def save_message(message, role):
     st.session_state["messages"].append({"message": message, "role": role})
@@ -81,6 +79,8 @@ def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
 
 
+memory = st.session_state["memory"]
+
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -101,11 +101,9 @@ Previous Conversation: {history}
     ]
 )
 
-st.title("DocumentGPT")
-
 st.markdown(
     """
-Welcome!
+# DocumentGPT
 
 Use this chatbot to ask a question to an AI about your files!
 

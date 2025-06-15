@@ -16,6 +16,11 @@ from langchain.storage import LocalFileStore
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 
+st.set_page_config(
+    page_title="MeetingGPT",
+    page_icon="📆",
+)
+
 openai.api_type = "openai"
 
 # Create temporary directory
@@ -94,13 +99,11 @@ def transcribe_chunks(chunk_paths, transcript_path):
                 text_file.write(transcript.text)
 
 
-st.set_page_config(page_title="MeetingGPT", page_icon="📆")
-
 st.markdown(
     """
 # MeetingGPT
              
-Welcome to MeetingGPT, upload a video and I will give you a transcript, a summary and a chat bot to ask any questions about it.
+Upload a video and I will give you a transcript, a summary and a chat bot to ask any questions about it.
  
 Get started by uploading a video file in the sidebar.
 """

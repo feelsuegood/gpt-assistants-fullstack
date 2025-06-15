@@ -16,6 +16,11 @@ from langchain.schema import BaseOutputParser
 # so that a user can choose to keep trying or not
 # If enabled, a user can see the correct answer right away
 
+st.set_page_config(
+    page_title="QuizGPT",
+    page_icon="💡",
+)
+
 
 class JsonOutputParser(BaseOutputParser):
     def parse(self, text):
@@ -24,13 +29,6 @@ class JsonOutputParser(BaseOutputParser):
 
 
 output_parser = JsonOutputParser()
-
-st.set_page_config(
-    page_title="QuizGPT",
-    page_icon="💡",
-)
-
-st.title("QuizGPT")
 
 
 def format_docs(docs):
@@ -254,7 +252,7 @@ with st.sidebar:
 if not docs:
     st.markdown(
         """
-    Welcome to QuizGPT.
+    # QuizGPT
     
     I will make a quiz from Wikipedia articles or files you upload to test your knowledge and help you study.
 

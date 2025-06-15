@@ -56,7 +56,7 @@ This project showcases different AI assistants for various use cases:
     cd gpt-assistants-fullstack
     ```
 
-2. **Set up virtual environment**
+2. **Set up virtual environment (Python 3.11)**
     ```bash
     python -m venv env
     source env/bin/activate  # On Windows: env\Scripts\activate
@@ -74,10 +74,10 @@ This project showcases different AI assistants for various use cases:
   ```bash
   ollama serve
   ```
-- Pull the required models (Mistral, Qwen):
+- Pull the required models (Mistral, Gemma3):
   ```bash
   ollama pull mistral
-  ollama pull qwen:0.5b
+  ollama pull gemma3
   ```
 
 5. **Configure API keys** 🔑
@@ -97,7 +97,6 @@ This project showcases different AI assistants for various use cases:
 Required environment variables:
 - `OPENAI_API_KEY`: Your OpenAI API key
 - `LANGCHAIN_API_KEY`: Your Langchain API key
-- `HUGGINGFACEHUB_API_TOKEN`: Your Hugging Face API token
 - `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage API key
 - `PINECONE_API_KEY`: Your Pinecone API key (optional)
 - `LANGCHAIN_TRACING_V2`: Set to "true" for LangSmith tracing
@@ -174,7 +173,6 @@ Required environment variables:
 
 ## 🏷️ License
 - CC BY-NC-SA 4.0 (non-commercial research only)
-- This project is for non-commercial research and educational purposes only.  
 - See individual model licenses for details.
 
 ## 📚 References

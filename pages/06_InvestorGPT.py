@@ -51,9 +51,25 @@ class StockMarketSymbolSearchTool(BaseTool):
 
     # change to HTML backend
     def _run(self, query):
-        ddg = DuckDuckGoSearchAPIWrapper(backend="html")
-        result = ddg.run(query)
-        return result
+        try:
+            ddg = DuckDuckGoSearchAPIWrapper(backend="html")
+            result = ddg.run(query)
+            if not result:
+                raise ValueError("Empty result from DuckDuckGo")
+            return result
+        except Exception as e:
+            # If DuckDuckGo fails and falls back to LLM
+            fallback_prompt = f"What is the stock market symbol for the following company?\nCompany name: {query}\nJust return the stock symbol in plain text."
+
+            try:
+                fallback_llm = ChatOpenAI(
+                    temperature=0.1,
+                    model="gpt-4.1-nano",
+                )
+                response = fallback_llm.invoke(fallback_prompt)
+                return f"(Fallback via LLM): {response}"
+            except Exception as llm_error:
+                return f"Failed to get stock symbol from DuckDuckGo and LLM. Error: {str(llm_error)}"
 
     # [x] duckduckgo_search version
     # def _run(self, query):
@@ -198,8 +214,6 @@ agent = initialize_agent(
 st.markdown(
     """
 # InvestorGPT  
-
-Welcome to InvestorGPT.
 
 Write down the name of a company and our Agent will do the research for you.
 """
