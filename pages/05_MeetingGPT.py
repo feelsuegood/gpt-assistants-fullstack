@@ -33,6 +33,7 @@ os.makedirs(CHUNKS_DIR, exist_ok=True)
 
 llm = ChatOpenAI(
     temperature=0.1,
+    api_key=openai_api_key,
 )
 splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=800,
@@ -48,7 +49,7 @@ def embed_file(file_path):
     )
     loader = TextLoader(file_path)
     docs = loader.load_and_split(text_splitter=splitter)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(api_key=openai_api_key)
     cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
         embeddings,
         cache_dir,

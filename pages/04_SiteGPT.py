@@ -20,9 +20,6 @@ if not openai_api_key:
     st.stop()
 
 
-# Configure logging
-# logging.basicConfig(level=logging.DEBUG)
-
 # Initialize a UserAgent object
 ua = UserAgent()
 client = httpx.Client(
@@ -36,7 +33,7 @@ client = httpx.Client(
     }
 )
 
-llm = ChatOpenAI(temperature=0.1)
+llm = ChatOpenAI(temperature=0.1, api_key=openai_api_key)
 
 answers_prompt = ChatPromptTemplate.from_template(
     """
@@ -75,23 +72,7 @@ def get_answers(inputs):
     docs = inputs["docs"]
     question = inputs["question"]
     answers_chain = answers_prompt | llm
-    # answers = []
-    # for doc in docs:
-    #     result = answers_chain.invoke(
-    #         {
-    #             "context": doc.page_content,
-    #             "question": question,
-    #         }
-    #     )
-    #     answers.append(result.content)
 
-    # hard coding - only get answers
-    # return [answers_chain.invoke(
-    #         {
-    #             "context": doc.page_content,
-    #             "question": question,
-    #         }
-    #     ).content for doc in docs]
     # * return a dictionary that has a question and  a list of answer dictioneries and question
     answers = {
         "question": question,
@@ -111,7 +92,6 @@ def get_answers(inputs):
             for doc in docs
         ],
     }
-    # [x] print(answers)
     return answers
 
 
@@ -147,14 +127,12 @@ def choose_answer(inputs):
         f"{answer['answer']}\nSource:{answer['source']}\nDate:{answer['date'].split('T')[0]}\n"
         for answer in answers
     )
-    # print(condensed)
     chosen_answer = choose_chain.invoke(
         {
             "question": question,
             "answers": condensed,
         }
     )
-    # print(f"🐥 chosen_answer: {chosen_answer}")
     return chosen_answer
 
 
@@ -166,7 +144,6 @@ def parse_page(soup):
     if footer:
         footer.decompose()
     text = str(soup.get_text())
-    # st.write(text)
 
     # 1. Remove all "opens in a new window"
     text = re.sub(r"\(opens in a new window\)", "", text)
@@ -222,7 +199,7 @@ def load_website(url):
     )
     docs = loader.load_and_split(text_splitter=splitter)
     # option: cache embeddings - should create a folder for each URL firstly
-    vector_store = FAISS.from_documents(docs, OpenAIEmbeddings())
+    vector_store = FAISS.from_documents(docs, OpenAIEmbeddings(api_key=openai_api_key))
     return vector_store.as_retriever()
 
 
@@ -257,23 +234,9 @@ if url:
             st.error("Please writhe down a sitemap URL")
     else:
         retriever = load_website(url)
-        # check whether retriever works well
-        # docs = retriever.invoke("What is the pice of GPT-4 Turbo?")
-        # docs
-
-        # 1st chain: rank answers for every page -> get_answers
-        # 2nd chain:  get the latest one
 
         query = st.text_input("Ask a question to the website.")
         if query:
-            # * Debug: Check search results
-            # docs = retriever.invoke(query)
-            # st.write("### Debug: Retrieved Documents")
-            # for doc in docs:
-            #     st.write("---")
-            #     st.write(f"Content: {doc.page_content[:200]}...")
-            #     st.write(f"Source: {doc.metadata.get('source', 'Unknown')}")
-
             chain = (
                 {
                     "docs": retriever,
@@ -284,6 +247,4 @@ if url:
             )
 
             result = chain.invoke(query)
-            # print(chain.invoke("What is the pricing of GPT-4 Turbo with vision."))
-            # st.write("### Answer")
             st.write(result.content)

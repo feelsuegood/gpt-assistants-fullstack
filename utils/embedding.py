@@ -18,14 +18,10 @@ def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_
     with tempfile.TemporaryDirectory() as temp_dir:
         file_content = _file.read()
         # Create model-specific directory within temp_dir
-        # model_dir = os.path.join(temp_dir, f"{files_folder}_{model_name}")
         temp_files_dir = os.path.join(temp_dir, f"{files_folder}_{model_name}")
         temp_embeddings_dir = os.path.join(
             temp_dir, f"{embeddings_folder}_{model_name}"
         )
-
-        # os.makedirs(model_dir, exist_ok=True)
-        # temp_file_path = os.path.join(model_dir, _file.name)
 
         # Create necessary directories
         os.makedirs(temp_files_dir, exist_ok=True)
@@ -48,15 +44,6 @@ def embed_file(_file, files_folder, embeddings_folder, _embeddings_model, model_
                             temp_embeddings_dir, _embeddings_model
                         )
                         return vectorstore.as_retriever()
-
-        # # Create cache directory within temp_dir
-        # cache_dir = LocalFileStore(
-        #     os.path.join(temp_dir, f"{embeddings_folder}_{model_name}")
-        # )
-
-        # Save the temporary file
-        # with open(temp_file_path, "wb") as f:
-        #     f.write(file_content)
 
         # If file doesn't exist or content is different, create new embeddings
         with open(temp_file_path, "wb") as f:

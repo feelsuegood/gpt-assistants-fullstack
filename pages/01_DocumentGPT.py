@@ -41,6 +41,7 @@ llm = ChatOpenAI(
     temperature=0.1,
     streaming=True,
     callbacks=[ChatCallBackHandler()],
+    api_key=openai_api_key,
 )
 
 # sesseion init
@@ -138,7 +139,9 @@ if file:
             input_key="question",
             output_key="text",
         )
-    retriever = embed_file(file, "files", "embeddings", OpenAIEmbeddings(), "openai")
+    retriever = embed_file(
+        file, "files", "embeddings", OpenAIEmbeddings(api_key=openai_api_key), "openai"
+    )
     send_message("I'm ready. Ask away!", "ai", save=False)
     paint_history()
     message = st.chat_input("Ask anything about your files...")

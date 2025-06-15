@@ -41,7 +41,7 @@ missing_keys = [
 
 if missing_keys:
     st.warning(
-        f"""### ⚠️ Missing required API keys:
+        f"""### ⚠️ Missing required API keys
 
 {', '.join(missing_keys)}
 

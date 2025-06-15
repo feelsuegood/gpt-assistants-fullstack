@@ -18,12 +18,6 @@ if not openai_api_key:
     st.stop()
 
 
-# [ ] Code challenge #1: using function calling instead of prompts
-# [ ] Code challenge #2: Create a switch (enable/disable) that shows the correct answer or not,
-# so that a user can choose to keep trying or not
-# If enabled, a user can see the correct answer right away
-
-
 class JsonOutputParser(BaseOutputParser):
     def parse(self, text):
         text = text.replace("```", "").replace("json", "")
@@ -49,6 +43,7 @@ llm = ChatOpenAI(
     model="gpt-4.1-nano-2025-04-14",
     streaming=True,
     callbacks=[StreamingStdOutCallbackHandler()],
+    api_key=openai_api_key,
 )
 
 questions_prompt = ChatPromptTemplate.from_messages(
@@ -192,7 +187,6 @@ def split_file(file):
     # Create a temporary directory
     with tempfile.TemporaryDirectory() as temp_dir:
         file_content = file.read()
-        # print(file.name) -> ok
         # Create model-specific directory within temp_dir
         model_dir = os.path.join(temp_dir, "quiz_files")
         os.makedirs(model_dir, exist_ok=True)

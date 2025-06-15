@@ -22,6 +22,7 @@ if not alpha_vantage_api_key:
 llm = ChatOpenAI(
     temperature=0.1,
     model="gpt-4.1-nano",
+    api_key=openai_api_key,
 )
 
 
@@ -64,7 +65,6 @@ class CompanyIncomeStatementTool(BaseTool):
         url = f"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={symbol}&apikey={alpha_vantage_api_key}"
         r = requests.get(url)
         return r.json()
-        # return r.json()["annualReports"]
 
 
 class CompanyStockPerformanceTool(BaseTool):
