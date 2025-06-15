@@ -28,7 +28,8 @@ required_api_keys = {
 # Get the API key saved in Home.py and use it
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
 if not openai_api_key:
-    st.error("Please enter your OpenAI API key in the home page")
+    st.error("Please enter your OpenAI API key")
+    st.stop()
 
 
 class JsonOutputParser(BaseOutputParser):
