@@ -56,7 +56,7 @@ This project showcases different AI assistants for various use cases:
     cd gpt-assistants-fullstack
     ```
 
-2. **Set up virtual environment**
+2. **Set up virtual environment (python 3.11)**
     ```bash
     python -m venv env
     source env/bin/activate  # On Windows: env\Scripts\activate
