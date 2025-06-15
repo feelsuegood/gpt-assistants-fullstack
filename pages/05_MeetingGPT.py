@@ -30,6 +30,9 @@ openai.api_type = "openai"
 if "transcript_path" not in st.session_state:
     st.session_state.transcript_path = None
 
+if "current_tab" not in st.session_state:
+    st.session_state.current_tab = 0  # 0: Transcript, 1: Summary, 2: Q&A
+
 
 # Create temporary directory
 TEMP_DIR = tempfile.mkdtemp()
@@ -40,6 +43,7 @@ os.makedirs(CHUNKS_DIR, exist_ok=True)
 
 llm = ChatOpenAI(
     temperature=0.1,
+    streaming=True,
     api_key=openai_api_key,
 )
 splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
