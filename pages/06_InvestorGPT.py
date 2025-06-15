@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from langchain.agents import initialize_agent, AgentType
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 import requests
+from fake_useragent import UserAgent
 
 st.set_page_config(
     page_title="InvestorGPT",
@@ -65,9 +66,26 @@ class StockMarketSymbolSearchTool(BaseTool):
     )
 
     def _run(self, query):
-        ddg = DuckDuckGoSearchAPIWrapper(backend="html")
-        result = ddg.run(query)
-        return result
+        try:
+            ddg = DuckDuckGoSearchAPIWrapper(backend="html", source="google")
+            result = ddg.run(query)
+            if not result:
+                raise ValueError("Empty result from DuckDuckGo")
+            return result
+        except Exception as e:
+            # If DuckDuckGo fails and falls back to LLM
+            fallback_prompt = f"What is the stock market symbol for the following company?\nCompany name: {query}\nJust return the stock symbol in plain text."
+
+            try:
+                fallback_llm = ChatOpenAI(
+                    temperature=0.1,
+                    model="gpt-4.1-nano",
+                    api_key=openai_api_key,
+                )
+                response = fallback_llm.invoke(fallback_prompt)
+                return f"(Fallback via LLM): {response}"
+            except Exception as llm_error:
+                return f"Failed to get stock symbol from DuckDuckGo and LLM. Error: {str(llm_error)}"
 
 
 class CompanyArgsSchema(BaseModel):
