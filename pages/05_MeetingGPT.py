@@ -5,7 +5,6 @@ import openai
 import streamlit as st
 import os
 import tempfile
-import openai
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import TextLoader
@@ -44,9 +43,8 @@ openai.api_type = "openai"
 if "transcript_path" not in st.session_state:
     st.session_state.transcript_path = None
 
-if "current_tab" not in st.session_state:
-    st.session_state.current_tab = 0  # 0: Transcript, 1: Summary, 2: Q&A
-
+if "previous_video_name" not in st.session_state:
+    st.session_state["previous_video_name"] = None
 
 # Create temporary directory
 TEMP_DIR = tempfile.mkdtemp()
@@ -154,6 +152,11 @@ with st.sidebar:
             st.session_state.api_keys[key] = api_key
 
 if video:
+    # Compare current video name with previous video name
+    if video.name != st.session_state["previous_video_name"]:
+        st.session_state["previous_video_name"] = video.name
+        st.session_state.transcript_path = None  # Reset transcript path for new video
+
     # If the transcript has already been processed, skip the processing
     if not st.session_state.transcript_path:
         with st.status("Loading the video...") as status:
