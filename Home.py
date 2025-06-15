@@ -45,9 +45,9 @@ if missing_keys:
     st.warning(
         f"""⚠️ Missing required API keys:
 
-        {', '.join(missing_keys)}
+{', '.join(missing_keys)}
 
-        Please enter your API key in the left sidebar. The key you enter will persist throughout your browser session."""
+Please enter your API key in the left sidebar. The key you enter will persist throughout your browser session."""
     )
 
 st.balloons()
