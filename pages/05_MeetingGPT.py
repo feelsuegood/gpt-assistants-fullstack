@@ -46,6 +46,7 @@ if "transcript_path" not in st.session_state:
 if "previous_video_name" not in st.session_state:
     st.session_state["previous_video_name"] = None
 
+
 # Create temporary directory
 TEMP_DIR = tempfile.mkdtemp()
 CACHE_DIR = os.path.join(TEMP_DIR, "cache")
@@ -127,7 +128,7 @@ st.markdown(
     """
 # MeetingGPT
              
-Welcome to MeetingGPT, upload a video and I will give you a transcript, a summary and a chat bot to ask any questions about it.
+Upload a video and I will give you a transcript, a summary and a chat bot to ask any questions about it.
  
 Get started by uploading a video file in the sidebar.
 """
@@ -178,13 +179,16 @@ if video:
             status.update(label="Transcribing the audio...")
             transcribe_chunks(chunk_paths, transcript_path)
 
-    transcript_tab, summary_tab, qa_tab = st.tabs(["Transcript", "Summary", "Q&A"])
+    with st.container(border=True):
+        tab = st.radio(
+            "Select a view", ["Transcript", "Summary", "Q&A"], horizontal=True
+        )
 
-    with transcript_tab:
+    if tab == "Transcript":
         with open(st.session_state.transcript_path, "r") as file:
             st.write(file.read())
 
-    with summary_tab:
+    if tab == "Summary":
         start = st.button("Generate Summary")
         if start:
             loader = TextLoader(st.session_state.transcript_path)
@@ -239,7 +243,7 @@ if video:
                     st.write(summary)
             st.write(summary)
 
-    with qa_tab:
+    if tab == "Q&A":
         # Initialize
         if "messages" not in st.session_state:
             st.session_state.messages = []
