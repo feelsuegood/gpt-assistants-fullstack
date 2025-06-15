@@ -57,7 +57,6 @@ os.makedirs(CHUNKS_DIR, exist_ok=True)
 
 llm = ChatOpenAI(
     temperature=0.1,
-    streaming=True,
     api_key=openai_api_key,
 )
 splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
