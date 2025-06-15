@@ -220,12 +220,20 @@ if video:
         # Show chat history in the container
         with chat_container:
             for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    st.markdown(message["content"])
+                try:
+                    role = message.get("role", "user")
+                    content = message.get("content", "")
+                    with st.chat_message(role):
+                        st.markdown(content)
+                except Exception as e:
+                    st.error("Error displaying message")
+                    continue
 
         # Handle user input
         if question:
-            st.session_state.messages.append({"role": "user", "content": question})
+            # Add user message
+            user_message = {"role": "user", "content": question}
+            st.session_state.messages.append(user_message)
             with chat_container:
                 with st.chat_message("user"):
                     st.markdown(question)
