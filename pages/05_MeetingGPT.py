@@ -35,7 +35,6 @@ required_api_keys = {
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
 if not openai_api_key:
     st.error("Please enter your OpenAI API key in the home page")
-    st.stop()
 
 openai.api_key = openai_api_key
 openai.api_type = "openai"
