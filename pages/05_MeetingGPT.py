@@ -16,13 +16,15 @@ from langchain.storage import LocalFileStore
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 
-openai.api_type = "openai"
 
 # Get the API key saved in Home.py and use it
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
 if not openai_api_key:
     st.error("Please enter your OpenAI API key in the home page")
     st.stop()
+
+openai.api_key = openai_api_key
+openai.api_type = "openai"
 
 # Create temporary directory
 TEMP_DIR = tempfile.mkdtemp()
