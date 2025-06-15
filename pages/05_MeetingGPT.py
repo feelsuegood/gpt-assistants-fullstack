@@ -16,6 +16,20 @@ from langchain.storage import LocalFileStore
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 
+st.set_page_config(
+    page_title="MeetingGPT",
+    page_icon="📆",
+)
+
+# Initialize session state for API keys if not exists
+if "api_keys" not in st.session_state:
+    st.session_state.api_keys = {}
+
+# Define required API keys
+required_api_keys = {
+    "OPENAI_API_KEY": "OpenAI API key",
+    "ALPHA_VANTAGE_API_KEY": "Alpha Vantage API key",
+}
 
 # Get the API key saved in Home.py and use it
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
@@ -112,8 +126,6 @@ def transcribe_chunks(chunk_paths, transcript_path):
                 text_file.write(transcript.text)
 
 
-st.set_page_config(page_title="MeetingGPT", page_icon="📆")
-
 st.markdown(
     """
 # MeetingGPT
@@ -126,6 +138,21 @@ Get started by uploading a video file in the sidebar.
 
 with st.sidebar:
     video = st.file_uploader("Video", type=["mp4", "avi", "mkv", "mov"])
+
+with st.sidebar:
+    st.header("🔑 API Keys Configuration")
+
+    for key, name in required_api_keys.items():
+        # Try to get from secrets first, if not available use session state
+        default_value = st.secrets.get(key, st.session_state.api_keys.get(key, ""))
+        api_key = st.text_input(
+            f"Enter your {name}",
+            value=default_value,
+            type="password",
+            key=f"input_{key}",
+        )
+        if api_key:
+            st.session_state.api_keys[key] = api_key
 
 if video:
     # If the transcript has already been processed, skip the processing

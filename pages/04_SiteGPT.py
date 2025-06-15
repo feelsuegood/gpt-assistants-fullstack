@@ -13,6 +13,21 @@ import streamlit as st
 # * https://openai.com/sitemap.xml
 # * https://www.google.com/forms/sitemaps.xml
 
+st.set_page_config(
+    page_title="SiteGPT",
+    page_icon="📌",
+)
+
+# Initialize session state for API keys if not exists
+if "api_keys" not in st.session_state:
+    st.session_state.api_keys = {}
+
+# Define required API keys
+required_api_keys = {
+    "OPENAI_API_KEY": "OpenAI API key",
+    "ALPHA_VANTAGE_API_KEY": "Alpha Vantage API key",
+}
+
 # Get the API key saved in Home.py and use it
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
 if not openai_api_key:
@@ -177,13 +192,6 @@ def load_website(url):
     verify_ssl = False
     loader = SitemapLoader(
         url,
-        ### * filtering URL ###
-        # spcific URL
-        # filter_urls=["https://openai.com/index/nonprofit-commission-advisors/"],
-        # exclude
-        # filter_urls=[r"^(?!.*\/sora\/).*"],
-        # include
-        # filter_urls=[r"^(.*\/gpt-4\/).*"],
         # Set a realistic user agent
         header_template={
             "User-Agent": ua.random,
@@ -203,15 +211,9 @@ def load_website(url):
     return vector_store.as_retriever()
 
 
-st.set_page_config(
-    page_title="SiteGPT",
-    page_icon="📌",
-)
-
-st.title("SiteGPT")
-
 st.markdown(
-    """             
+    """
+    # SiteGPT
      Ask questions about the content of a website.
              
      Start by writing the URL of the website on the sidebar.
@@ -227,6 +229,21 @@ with st.sidebar:
         "Write down a URL",
         placeholder="https://example.com/sitemap.xml",
     )
+
+with st.sidebar:
+    st.header("🔑 API Keys Configuration")
+
+    for key, name in required_api_keys.items():
+        # Try to get from secrets first, if not available use session state
+        default_value = st.secrets.get(key, st.session_state.api_keys.get(key, ""))
+        api_key = st.text_input(
+            f"Enter your {name}",
+            value=default_value,
+            type="password",
+            key=f"input_{key}",
+        )
+        if api_key:
+            st.session_state.api_keys[key] = api_key
 
 if url:
     if ".xml" not in url:

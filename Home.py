@@ -16,21 +16,6 @@ required_api_keys = {
     "ALPHA_VANTAGE_API_KEY": "Alpha Vantage API key",
 }
 
-# Create sidebar for API key inputs
-with st.sidebar:
-    st.header("🔑 API Keys Configuration")
-
-    for key, name in required_api_keys.items():
-        # Try to get from secrets first, if not available use session state
-        default_value = st.secrets.get(key, st.session_state.api_keys.get(key, ""))
-        api_key = st.text_input(
-            f"Enter your {name}",
-            value=default_value,
-            type="password",
-            key=f"input_{key}",
-        )
-        if api_key:
-            st.session_state.api_keys[key] = api_key
 
 # Check if all required API keys are present
 missing_keys = [
@@ -48,6 +33,22 @@ if missing_keys:
 Please enter your API key in the left sidebar.  
 The key you enter will persist throughout your browser session."""
     )
+
+# Create sidebar for API key inputs
+with st.sidebar:
+    st.header("🔑 API Keys Configuration")
+
+    for key, name in required_api_keys.items():
+        # Try to get from secrets first, if not available use session state
+        default_value = st.secrets.get(key, st.session_state.api_keys.get(key, ""))
+        api_key = st.text_input(
+            f"Enter your {name}",
+            value=default_value,
+            type="password",
+            key=f"input_{key}",
+        )
+        if api_key:
+            st.session_state.api_keys[key] = api_key
 
 st.balloons()
 

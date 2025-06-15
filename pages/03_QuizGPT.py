@@ -10,6 +10,20 @@ import streamlit as st
 from langchain_community.retrievers import WikipediaRetriever
 from langchain.schema import BaseOutputParser
 
+st.set_page_config(
+    page_title="QuizGPT",
+    page_icon="💡",
+)
+
+# Initialize session state for API keys if not exists
+if "api_keys" not in st.session_state:
+    st.session_state.api_keys = {}
+
+# Define required API keys
+required_api_keys = {
+    "OPENAI_API_KEY": "OpenAI API key",
+    "ALPHA_VANTAGE_API_KEY": "Alpha Vantage API key",
+}
 
 # Get the API key saved in Home.py and use it
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
@@ -25,13 +39,6 @@ class JsonOutputParser(BaseOutputParser):
 
 
 output_parser = JsonOutputParser()
-
-st.set_page_config(
-    page_title="QuizGPT",
-    page_icon="💡",
-)
-
-st.title("QuizGPT")
 
 
 def format_docs(docs):
@@ -252,9 +259,24 @@ with st.sidebar:
         if topic:
             docs = wiki_search(topic)
 
+    st.header("🔑 API Keys Configuration")
+
+    for key, name in required_api_keys.items():
+        # Try to get from secrets first, if not available use session state
+        default_value = st.secrets.get(key, st.session_state.api_keys.get(key, ""))
+        api_key = st.text_input(
+            f"Enter your {name}",
+            value=default_value,
+            type="password",
+            key=f"input_{key}",
+        )
+        if api_key:
+            st.session_state.api_keys[key] = api_key
+
 if not docs:
     st.markdown(
         """
+    # QuizGPT
     Welcome to QuizGPT.
     
     I will make a quiz from Wikipedia articles or files you upload to test your knowledge and help you study.
@@ -263,18 +285,9 @@ if not docs:
 """
     )
 else:
-    # questions_response = questions_chain.invoke(docs)
-    # st.write(questions_response.content)
-    # formatting_response = formatting_chain.invoke(
-    #     {"context": questions_response.content}
-    # )
-    # # ! don't forget '.content'
-    # st.write(formatting_response.content)
     quiz_topic = topic
     response = run_quiz_chain(docs, quiz_topic)
-    # st.write(response)
     with st.form("questions_form"):
-        # think relations based on questions
         for question in response["questions"]:
             st.write(question["question"])
             value = st.radio(

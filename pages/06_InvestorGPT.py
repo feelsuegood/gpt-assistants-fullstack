@@ -8,6 +8,20 @@ from langchain.agents import initialize_agent, AgentType
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 import requests
 
+st.set_page_config(
+    page_title="InvestorGPT",
+    page_icon="📈",
+)
+
+# Initialize session state for API keys if not exists
+if "api_keys" not in st.session_state:
+    st.session_state.api_keys = {}
+
+# Define required API keys
+required_api_keys = {
+    "OPENAI_API_KEY": "OpenAI API key",
+    "ALPHA_VANTAGE_API_KEY": "Alpha Vantage API key",
+}
 # Get the API key saved in Home.py and use it
 openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
 if not openai_api_key:
@@ -18,6 +32,21 @@ alpha_vantage_api_key = st.session_state.api_keys.get("ALPHA_VANTAGE_API_KEY")
 if not alpha_vantage_api_key:
     st.error("Please enter your Alpha Vantage API key in the home page")
     st.stop()
+
+with st.sidebar:
+    st.header("🔑 API Keys Configuration")
+
+    for key, name in required_api_keys.items():
+        # Try to get from secrets first, if not available use session state
+        default_value = st.secrets.get(key, st.session_state.api_keys.get(key, ""))
+        api_key = st.text_input(
+            f"Enter your {name}",
+            value=default_value,
+            type="password",
+            key=f"input_{key}",
+        )
+        if api_key:
+            st.session_state.api_keys[key] = api_key
 
 llm = ChatOpenAI(
     temperature=0.1,
@@ -154,10 +183,6 @@ agent = initialize_agent(
     },
 )
 
-st.set_page_config(
-    page_title="InvestorGPT",
-    page_icon="📈",
-)
 
 st.markdown(
     """
