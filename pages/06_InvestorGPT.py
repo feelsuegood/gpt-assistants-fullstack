@@ -1,8 +1,4 @@
 import streamlit as st
-import os
-
-# import time
-# from fake_useragent import UserAgent
 from typing import Type
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage
@@ -10,27 +6,23 @@ from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 from langchain.agents import initialize_agent, AgentType
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
-
-# from langchain_community.tools import DuckDuckGoSearchResults
-# from duckduckgo_search import DDGS
 import requests
 
-st.set_page_config(
-    page_title="InvestorGPT",
-    page_icon="📈",
-)
-#! limit 25 requests on alpha vantage api
+# Get the API key saved in Home.py and use it
+openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
+if not openai_api_key:
+    st.error("Please enter your OpenAI API key in the home page")
+    st.stop()
 
-# Initialize a UserAgent object
-# ua = UserAgent()
-
+alpha_vantage_api_key = st.session_state.api_keys.get("ALPHA_VANTAGE_API_KEY")
+if not alpha_vantage_api_key:
+    st.error("Please enter your Alpha Vantage API key in the home page")
+    st.stop()
 
 llm = ChatOpenAI(
     temperature=0.1,
     model="gpt-4.1-nano",
 )
-
-alpha_vantage_api_key = os.environ.get("ALPHA_VANTAGE_API_KEY")
 
 
 class StockMarketSymbolSearchToolArgsSchema(BaseModel):
@@ -43,42 +35,10 @@ class StockMarketSymbolSearchTool(BaseTool):
         StockMarketSymbolSearchToolArgsSchema
     )
 
-    # encounter rate limit error
-    # def _run(self, query):
-    #     ddg = DuckDuckGoSearchAPIWrapper(backend="api")
-    #     result = ddg.run(query)
-    #     return result
-
-    # change to HTML backend
     def _run(self, query):
         ddg = DuckDuckGoSearchAPIWrapper(backend="html")
         result = ddg.run(query)
         return result
-
-    # [x] duckduckgo_search version
-    # def _run(self, query):
-    #     # Get random user agent
-    #     # Create DDGS instance with custom headers
-    #     ddgs = DDGS(headers={"User-Agent": ua.random})
-    #     # Perform the search
-    #     results = list(
-    #         ddgs.text(query, region="us-en", safesearch="off", max_results=3)
-    #     )
-    #     time.sleep(2)  # Add delay between requests
-    #     return results
-    #     # * dosen't work
-    #     # headers = {"User-Agent": ua.random}
-    #     # wrapper = DuckDuckGoSearchAPIWrapper(
-    #     #     region="wt-wt",  # Default global region
-    #     #     time="y",  # Search period (y: 1 year)
-    #     #     max_results=5,  # Maximum number of results
-    #     #     requests_kwargs={"headers": headers},
-    #     # )
-    #     # search = DuckDuckGoSearchResults(
-    #     #     api_wrapper=wrapper,
-    #     #     backend="html",
-    #     # )
-    #     # return search.run(query)
 
 
 class CompanyArgsSchema(BaseModel):
@@ -194,6 +154,10 @@ agent = initialize_agent(
     },
 )
 
+st.set_page_config(
+    page_title="InvestorGPT",
+    page_icon="📈",
+)
 
 st.markdown(
     """

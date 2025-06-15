@@ -7,10 +7,12 @@ from langchain.memory import ConversationSummaryBufferMemory
 import streamlit as st
 from utils.embedding import embed_file
 
-st.set_page_config(
-    page_title="DocumentGPT",
-    page_icon="📄",
-)
+
+# Get the API key saved in Home.py and use it
+openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
+if not openai_api_key:
+    st.error("Please enter your OpenAI API key in the home page")
+    st.stop()
 
 
 class ChatCallBackHandler(BaseCallbackHandler):
@@ -101,7 +103,11 @@ Previous Conversation: {history}
     ]
 )
 
-st.title("DocumentGPT")
+st.set_page_config(
+    page_title="DocumentGPT",
+    page_icon="📄",
+)
+
 
 st.markdown(
     """

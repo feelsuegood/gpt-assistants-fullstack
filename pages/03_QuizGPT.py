@@ -11,6 +11,13 @@ from langchain_community.retrievers import WikipediaRetriever
 from langchain.schema import BaseOutputParser
 
 
+# Get the API key saved in Home.py and use it
+openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
+if not openai_api_key:
+    st.error("Please enter your OpenAI API key in the home page")
+    st.stop()
+
+
 # [ ] Code challenge #1: using function calling instead of prompts
 # [ ] Code challenge #2: Create a switch (enable/disable) that shows the correct answer or not,
 # so that a user can choose to keep trying or not

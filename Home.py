@@ -13,9 +13,7 @@ if "api_keys" not in st.session_state:
 # Define required API keys
 required_api_keys = {
     "OPENAI_API_KEY": "OpenAI API key",
-    "LANGCHAIN_API_KEY": "LangChain API key",
     "ALPHA_VANTAGE_API_KEY": "Alpha Vantage API key",
-    "PINECONE_API_KEY": "Pinecone API key",
 }
 
 # Create sidebar for API key inputs

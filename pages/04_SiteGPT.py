@@ -13,6 +13,13 @@ import streamlit as st
 # * https://openai.com/sitemap.xml
 # * https://www.google.com/forms/sitemaps.xml
 
+# Get the API key saved in Home.py and use it
+openai_api_key = st.session_state.api_keys.get("OPENAI_API_KEY")
+if not openai_api_key:
+    st.error("Please enter your OpenAI API key in the home page")
+    st.stop()
+
+
 # Configure logging
 # logging.basicConfig(level=logging.DEBUG)
 
