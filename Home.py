@@ -37,7 +37,7 @@ st.balloons()
 
 st.markdown(
     """
-# 🤖 Welcome to my GPT Assistants Project!
+# 🤖 Welcome to my GPT Assistants
 
 **This is a comprehensive AI-powered assistant platform that demonstrates various applications of Large Language Models (LLMs) in real-world scenarios.**
 
