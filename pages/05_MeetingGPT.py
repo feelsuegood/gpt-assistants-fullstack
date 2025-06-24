@@ -23,6 +23,13 @@ st.set_page_config(
 
 openai.api_type = "openai"
 
+# Initialize session_state
+if "transcript_path" not in st.session_state:
+    st.session_state.transcript_path = None
+
+if "previous_video_name" not in st.session_state:
+    st.session_state["previous_video_name"] = None
+
 # Create temporary directory
 TEMP_DIR = tempfile.mkdtemp()
 CACHE_DIR = os.path.join(TEMP_DIR, "cache")
@@ -113,34 +120,49 @@ with st.sidebar:
     video = st.file_uploader("Video", type=["mp4", "avi", "mkv", "mov"])
 
 if video:
-    with st.status("Loading the video...") as status:
-        # Create temporary file path
-        video_path = os.path.join(TEMP_DIR, video.name)
-        transcript_path = os.path.join(TEMP_DIR, video.name.replace("mp4", "txt"))
+    # Compare current video name with previous video name
+    if video.name != st.session_state["previous_video_name"]:
+        st.session_state["previous_video_name"] = video.name
+        st.session_state.transcript_path = None  # Reset transcript path for new video
 
-        # Save video file
-        with open(video_path, "wb") as f:
-            f.write(video.read())
+    # If the transcript has already been processed, skip the processing
+    if not st.session_state.transcript_path:
+        with st.status("Loading the video...") as status:
+            # Create temporary file path
+            video_path = os.path.join(TEMP_DIR, video.name)
+            transcript_path = os.path.join(TEMP_DIR, video.name.replace("mp4", "txt"))
+            st.session_state.transcript_path = transcript_path
 
-        status.update(label="Extracting the audio...")
-        audio_path = extract_audio_from_video(video_path)
+            # Save video file
+            with open(video_path, "wb") as f:
+                f.write(video.read())
 
-        status.update(label="Cutting audio into chunks...")
-        chunk_paths = cut_audio_in_chunks(audio_path, 5)
+            status.update(label="Extracting the audio...")
+            audio_path = extract_audio_from_video(video_path)
 
-        status.update(label="Transcribing the audio...")
-        transcribe_chunks(chunk_paths, transcript_path)
+            status.update(label="Cutting audio into chunks...")
+            chunk_paths = cut_audio_in_chunks(audio_path, 5)
 
-    transcript_tab, summary_tab, qa_tab = st.tabs(["Transcript", "Summary", "Q&A"])
+            status.update(label="Transcribing the audio...")
+            transcribe_chunks(chunk_paths, transcript_path)
 
-    with transcript_tab:
-        with open(transcript_path, "r") as file:
+    # transcript_tab, summary_tab, qa_tab = st.tabs(["Transcript", "Summary", "Q&A"])
+
+    with st.container(border=True):
+        tab = st.radio(
+            "Select a view", ["Transcript", "Summary", "Q&A"], horizontal=True
+        )
+
+    # with transcript_tab:
+    if tab == "Transcript":
+        with open(st.session_state.transcript_path, "r") as file:
             st.write(file.read())
 
-    with summary_tab:
+    # with summary_tab:
+    if tab == "Summary":
         start = st.button("Generate Summary")
         if start:
-            loader = TextLoader(transcript_path)
+            loader = TextLoader(st.session_state.transcript_path)
             docs = loader.load_and_split(text_splitter=splitter)
 
             first_summary_prompt = ChatPromptTemplate.from_template(
@@ -192,7 +214,61 @@ if video:
                     st.write(summary)
             st.write(summary)
 
-    with qa_tab:
-        retriever = embed_file(transcript_path)
-        docs = retriever.invoke("How the birth chart affects someone's personality?")
-        st.write(docs)
+    # with qa_tab:
+    if tab == "Q&A":
+        # Initialize
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        # Container for chat history
+        chat_container = st.container()
+
+        # Input at the bottom
+        question = st.chat_input("Ask a question about the video...")
+
+        # Show chat history in the container
+        with chat_container:
+            for message in st.session_state.messages:
+                try:
+                    role = message.get("role", "user")
+                    content = message.get("content", "")
+                    with st.chat_message(role):
+                        st.markdown(content)
+                except Exception as e:
+                    st.error("Error displaying message")
+                    continue
+
+        # Handle user input
+        if question:
+            # Add user message
+            user_message = {"role": "user", "content": question}
+            st.session_state.messages.append(user_message)
+            with chat_container:
+                with st.chat_message("user"):
+                    st.markdown(question)
+
+                # Generate and show AI response
+                with st.chat_message("assistant"):
+                    retriever = embed_file(st.session_state.transcript_path)
+                    context = retriever.invoke(question)
+                    context_text = "\n\n".join(doc.page_content for doc in context)
+
+                    prompt = ChatPromptTemplate.from_template(
+                        """
+                    Answer the question using ONLY the following context. If you cannot find the answer in the context, say "I cannot answer this question based on the video content."
+
+                    Context: {context}
+
+                    Question: {question}
+                    """
+                    )
+
+                    chain = prompt | llm | StrOutputParser()
+                    response = chain.invoke(
+                        {"context": context_text, "question": question}
+                    )
+
+                    st.markdown(response)
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": response}
+                    )
