@@ -1,18 +1,11 @@
 import streamlit as st
 import os
-
-# import time
-# from fake_useragent import UserAgent
 from typing import Type
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 from langchain.agents import initialize_agent, AgentType
-from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
-
-# from langchain_community.tools import DuckDuckGoSearchResults
-# from duckduckgo_search import DDGS
 import requests
 
 st.set_page_config(
@@ -20,10 +13,6 @@ st.set_page_config(
     page_icon="📈",
 )
 #! limit 25 requests on alpha vantage api
-
-# Initialize a UserAgent object
-# ua = UserAgent()
-
 
 llm = ChatOpenAI(
     temperature=0.1,
@@ -70,60 +59,6 @@ class StockMarketSymbolSearchTool(BaseTool):
         except Exception as llm_error:
             return f"Failed to get stock symbol. Error: {str(llm_error)}"
 
-    #! duckduckgo often returns error so change to use llm
-    # encounter rate limit error
-    # def _run(self, query):
-    #     ddg = DuckDuckGoSearchAPIWrapper(backend="api")
-    #     result = ddg.run(query)
-    #     return result
-
-    # change to HTML backend -> still returns error
-    # def _run(self, query):
-    #     try:
-    #         ddg = DuckDuckGoSearchAPIWrapper(backend="html")
-    #         result = ddg.run(query)
-    #         if not result:
-    #             raise ValueError("Empty result from DuckDuckGo")
-    #         return result
-    #     except Exception as e:
-    #         # If DuckDuckGo fails and falls back to LLM
-    #         fallback_prompt = f"What is the stock market symbol for the following company?\nCompany name: {query}\nJust return the stock symbol in plain text."
-
-    #         try:
-    #             fallback_llm = ChatOpenAI(
-    #                 temperature=0.1,
-    #                 model="gpt-4.1-nano",
-    #             )
-    #             response = fallback_llm.invoke(fallback_prompt)
-    #             return f"(Fallback via LLM): {response}"
-    #         except Exception as llm_error:
-    #             return f"Failed to get stock symbol from DuckDuckGo and LLM. Error: {str(llm_error)}"
-
-    # [x] duckduckgo_search version
-    # def _run(self, query):
-    #     # Get random user agent
-    #     # Create DDGS instance with custom headers
-    #     ddgs = DDGS(headers={"User-Agent": ua.random})
-    #     # Perform the search
-    #     results = list(
-    #         ddgs.text(query, region="us-en", safesearch="off", max_results=3)
-    #     )
-    #     time.sleep(2)  # Add delay between requests
-    #     return results
-    #     # * dosen't work
-    #     # headers = {"User-Agent": ua.random}
-    #     # wrapper = DuckDuckGoSearchAPIWrapper(
-    #     #     region="wt-wt",  # Default global region
-    #     #     time="y",  # Search period (y: 1 year)
-    #     #     max_results=5,  # Maximum number of results
-    #     #     requests_kwargs={"headers": headers},
-    #     # )
-    #     # search = DuckDuckGoSearchResults(
-    #     #     api_wrapper=wrapper,
-    #     #     backend="html",
-    #     # )
-    #     # return search.run(query)
-
 
 class CompanyArgsSchema(BaseModel):
 
@@ -148,7 +83,6 @@ class CompanyIncomeStatementTool(BaseTool):
         url = f"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={symbol}&apikey={alpha_vantage_api_key}"
         r = requests.get(url)
         return r.json()
-        # return r.json()["annualReports"]
 
 
 class CompanyStockPerformanceTool(BaseTool):

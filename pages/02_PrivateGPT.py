@@ -270,9 +270,5 @@ else:
                 with st.spinner("Generating an answer..."):
                     chain.invoke(message)
 
-            # print("🧠 MEMORY:", memory.load_memory_variables({})["history"])
-            # print("🤖 MODEL:", st.session_state["model_selector"])
-            # print("🔍 LLM:", st.session_state["llm"].model)
-
     else:
         st.session_state["messages"] = []

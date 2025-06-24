@@ -183,7 +183,6 @@ def split_file(file):
     # Create a temporary directory
     with tempfile.TemporaryDirectory() as temp_dir:
         file_content = file.read()
-        # print(file.name) -> ok
         # Create model-specific directory within temp_dir
         model_dir = os.path.join(temp_dir, "quiz_files")
         os.makedirs(model_dir, exist_ok=True)
@@ -260,16 +259,8 @@ if not docs:
 """
     )
 else:
-    # questions_response = questions_chain.invoke(docs)
-    # st.write(questions_response.content)
-    # formatting_response = formatting_chain.invoke(
-    #     {"context": questions_response.content}
-    # )
-    # # ! don't forget '.content'
-    # st.write(formatting_response.content)
     quiz_topic = topic
     response = run_quiz_chain(docs, quiz_topic)
-    # st.write(response)
     with st.form("questions_form"):
         # think relations based on questions
         for question in response["questions"]:
@@ -279,7 +270,6 @@ else:
                 [answer["answer"] for answer in question["answers"]],
                 index=None,
             )
-            # st.json({"value": value, "correct": True} in question["answers"])
             if {"answer": value, "correct": True} in question["answers"]:
                 st.success("Correct 🙆🏻‍♀️")
             elif value is not None:

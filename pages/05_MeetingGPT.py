@@ -146,8 +146,6 @@ if video:
             status.update(label="Transcribing the audio...")
             transcribe_chunks(chunk_paths, transcript_path)
 
-    # transcript_tab, summary_tab, qa_tab = st.tabs(["Transcript", "Summary", "Q&A"])
-
     with st.container(border=True):
         tab = st.radio(
             "Select a view", ["Transcript", "Summary", "Q&A"], horizontal=True

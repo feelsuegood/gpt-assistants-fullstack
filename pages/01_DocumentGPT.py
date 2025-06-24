@@ -117,7 +117,6 @@ with st.sidebar:
     )
 
 if file:
-    # * Code Challenge: apply memory by using session state
     # Initializing memory when the file changes and don't drag the history about the old file to the new file.
     # New document → new context → new memory
     if file.name != st.session_state["previous_file_name"]:
@@ -152,8 +151,5 @@ if file:
             # automatically st.markdown when invoke and saved by callbackhandlers
             chain.invoke(message)
 
-        # * Optional: display memory contents
-        # st.markdown("**Memory Contents:**")
-        # st.json(memory.load_memory_variables({}))
 else:
     st.session_state["messages"] = []
