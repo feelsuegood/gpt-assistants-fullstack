@@ -66,26 +66,31 @@ class StockMarketSymbolSearchTool(BaseTool):
     )
 
     def _run(self, query):
-        try:
-            ddg = DuckDuckGoSearchAPIWrapper(backend="html", source="google")
-            result = ddg.run(query)
-            if not result:
-                raise ValueError("Empty result from DuckDuckGo")
-            return result
-        except Exception as e:
-            # If DuckDuckGo fails and falls back to LLM
-            fallback_prompt = f"What is the stock market symbol for the following company?\nCompany name: {query}\nJust return the stock symbol in plain text."
+        # Use LLM directly to find stock symbol
+        symbol_prompt = f"""
+        What is the official stock market ticker symbol for the following company?
+        
+        Company name: {query}
+        
+        Please provide ONLY the ticker symbol (e.g., AAPL, TSLA, MSFT) without any additional text or explanation.
+        If the company is not publicly traded or you're not certain, respond with "NOT_FOUND".
+        """
 
-            try:
-                fallback_llm = ChatOpenAI(
-                    temperature=0.1,
-                    model="gpt-4.1-nano",
-                    api_key=openai_api_key,
-                )
-                response = fallback_llm.invoke(fallback_prompt)
-                return f"(Fallback via LLM): {response}"
-            except Exception as llm_error:
-                return f"Failed to get stock symbol from DuckDuckGo and LLM. Error: {str(llm_error)}"
+        try:
+            symbol_llm = ChatOpenAI(
+                temperature=0.1,
+                model="gpt-4.1-nano",
+            )
+            response = symbol_llm.invoke(symbol_prompt)
+            symbol = str(response).strip().upper()
+
+            if symbol == "NOT_FOUND":
+                return f"Could not find stock symbol for '{query}'. The company may not be publicly traded."
+
+            return f"Stock symbol for {query}: {symbol}"
+
+        except Exception as llm_error:
+            return f"Failed to get stock symbol. Error: {str(llm_error)}"
 
 
 class CompanyArgsSchema(BaseModel):
